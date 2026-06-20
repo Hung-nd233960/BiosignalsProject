@@ -228,6 +228,19 @@ Every lab follows a fixed six-section structure:
 
 > **Approach: adaptive-directed.** The instructor's brief is "show what you find," so the *question* is supplied by the analysis itself. Volume C starts by characterizing the data, decides which of the six archetypes the EEG resembles, then deploys the right tool for what was found. The unifying thesis: **EEG can be read as a superposition of the six signal archetypes, and the time-frequency theory of Volumes A–B predicts which tool reveals each feature.** Medical associations are *cited and descriptive*, never asserted as diagnoses.
 
+## Volume C standards
+
+All Volume B rules apply (code format, graphs, numbering, dual-stack, six-section template). Additional EEG-specific standards:
+
+- **Physical units mandatory.** Amplitude in µV, PSD in µV²/Hz, time in s. No arbitrary or normalized units.
+- **Data-first, not math-first.** Each section starts with the data (channel, time range, raw waveform), then applies the tool.
+- **Adaptive-directed.** C.1 (triage) decides the direction. Each subsequent section justifies its existence from C.1's findings.
+- **Reproducibility.** Dataset source, file format, sampling rate, channel selection, preprocessing — all stated explicitly. MNE for all EEG I/O.
+- **Artifact handling stated per section.** Removed or not, how, and what effect.
+- **Parameter justification.** Welch segment length, window choice, overlap — justified from Labs 2–3, not default.
+- **WVD/SPWVD on selected segments only.** Selection criteria stated. Full-record WVD is not attempted.
+- **Clinical language.** Associations cited from literature, never asserted as diagnoses.
+
 ## C.1 First Look and Triage  *(decide the direction from the data)*
 
 - **C.1.1** The EEG signal: source, sampling rate, duration, channel(s) — stated concretely

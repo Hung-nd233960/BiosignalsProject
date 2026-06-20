@@ -81,9 +81,11 @@ def compute_stft_custom_window(x, window_array, fs=FS):
 # ============================================================
 # 2. Plot one spectrogram panel (single, not dual-stack)
 # ============================================================
-def plot_single_spectrogram(ax, t_stft, f_stft, Sxx, title="", f_range=(0, 20)):
+def plot_single_spectrogram(ax, t_stft, f_stft, Sxx, title="", f_range=(0, 20),
+                            vmin=None, vmax=None):
     """
     Plot a single spectrogram on a given axes (for grid layout).
+    No per-panel colorbar — caller adds one shared colorbar per figure.
 
     Parameters
     ----------
@@ -93,12 +95,22 @@ def plot_single_spectrogram(ax, t_stft, f_stft, Sxx, title="", f_range=(0, 20)):
     Sxx     : 2D ndarray — power spectrogram
     title   : str — subplot title
     f_range : tuple — frequency zoom
+    vmin    : float — shared color minimum (optional)
+    vmax    : float — shared color maximum (optional)
+
+    Returns
+    -------
+    im : matplotlib QuadMesh — for creating a shared colorbar
     """
-    Sxx_db = 10 * np.log10(np.maximum(Sxx, 1e-20))  # dB scale
-    ax.pcolormesh(t_stft, f_stft, Sxx_db, shading="gouraud", cmap=COLORMAP)
+    im = ax.pcolormesh(
+        t_stft, f_stft, Sxx,
+        shading="gouraud", cmap="inferno",
+        vmin=vmin, vmax=vmax,
+    )
     ax.set_ylim(f_range)
     ax.set_ylabel("Freq (Hz)")
     ax.set_title(title, fontsize=9)
+    return im
 
 
 # ============================================================
@@ -149,28 +161,49 @@ def experiment_resolution_grid():
             [F1, f2], amplitudes=[1.0, 1.0], duration=DURATION_LAB
         )
 
-        fig, axes = plt.subplots(1, n_wins, figsize=(5 * n_wins, 4), sharey=True)
+        fig, axes = plt.subplots(
+            1, n_wins, figsize=(5 * n_wins + 1.5, 4.5),  # extra width for colorbar
+            sharey=True,
+            constrained_layout=True,                      # handles colorbar spacing
+        )
 
+        # --- Compute all spectrograms first to find shared color range ---
+        stft_data = []
+        global_vmax = 0
         for i, (name, _, win_func, beta, df_min) in enumerate(WINDOWS):
             w = win_func(M)  # generate window
             t_stft, f_stft, Sxx = compute_stft_custom_window(x, w)
+            stft_data.append((t_stft, f_stft, Sxx))
+            global_vmax = max(global_vmax, np.max(Sxx))   # track global max
+
+        # --- Plot with shared color scale ---
+        im_last = None
+        for i, (name, _, win_func, beta, df_min) in enumerate(WINDOWS):
+            t_stft, f_stft, Sxx = stft_data[i]
 
             resolved = "YES" if sep >= df_min else "NO"  # prediction
-            plot_single_spectrogram(
+            im_last = plot_single_spectrogram(
                 axes[i],
                 t_stft,
                 f_stft,
                 Sxx,
                 title=f"{name} (β={beta})\nΔf_min={df_min:.2f} Hz → {resolved}",
                 f_range=(F1 - 3, F1 + sep + 3),  # zoom around the tones
+                vmin=0, vmax=global_vmax,          # shared color range
             )
             if i == 0:
                 axes[i].set_ylabel("Frequency (Hz)")
+            else:
+                axes[i].set_ylabel("")             # no duplicate y labels
             axes[i].set_xlabel("Time (s)")
 
             # --- Mark the true tone frequencies ---
             axes[i].axhline(F1, color="white", ls="--", lw=0.5, alpha=0.6)
             axes[i].axhline(f2, color="white", ls="--", lw=0.5, alpha=0.6)
+
+        # --- One shared colorbar for the whole figure ---
+        fig.colorbar(im_last, ax=axes.tolist(), label="Power (linear)",
+                     fraction=0.02, pad=0.04)
 
         fig_num = FIG_START + 1 + j
         fig.suptitle(
@@ -180,7 +213,6 @@ def experiment_resolution_grid():
             fontstyle="italic",
         )
         fig.set_dpi(DPI)
-        fig.tight_layout()
         figs_grid.append(fig)
 
         print(f"\n  Δ = {sep:.1f} Hz:")

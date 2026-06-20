@@ -15,3 +15,4 @@ from .plotting import (
     plot_spectrogram,
     save_figure,
 )
+from .eeg import load_eeg, compute_band_power, get_channel_data

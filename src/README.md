@@ -20,10 +20,11 @@ Never `pip install` directly into the environment. All dependencies go in `envir
 ```
 src/
   common/              shared utilities — the single source of truth
-    config.py          constants: FS, DURATION, SEED, DPI, colormaps, paths
+    config.py          constants: FS, DURATION, SEED, DPI, colormaps, EEG_BANDS, paths
     signals.py         model signal generators (one per Appendix A archetype)
     windows.py         window functions (cosine-sum family + Gaussian)
     plotting.py        dual-stack plotting, spectrogram, time-domain plots
+    eeg.py             EEG loading (MNE), band-power (Welch), channel selection
   lab1_dft/            one folder per lab
   lab2_statistics/
   lab3_windows/
