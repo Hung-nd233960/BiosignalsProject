@@ -1,0 +1,21 @@
+name: biosignals
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core scientific stack
+  - python>=3.11
+  - numpy
+  - scipy
+  - matplotlib
+
+  # Notebooks
+  - jupyterlab
+  - ipykernel
+
+  # EEG analysis (Volume C)
+  - mne
+
+  # R support (optional, for collaborators who prefer R)
+  - r-base
+  - rpy2
