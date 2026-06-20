@@ -16,6 +16,7 @@ A unified slide deck accompanies all three volumes.
 
 - **Academic but honest.** Serious enough for a university report, but written as students explaining concepts we learned — not as textbook authors. No false authority; if something is approximate or heuristic, say so.
 - **Neutral.** No hype, no hedging. State what the method does, what it costs, and what we observed.
+- **Discrete realm.** All mathematical formulas, derivations, and interpretations are explicitly discrete-time and discrete-frequency. Use summations (not integrals), sample indices (not continuous time), and normalized/discrete frequency. The continuous-time form may be mentioned for motivation, but the working formula is always the discrete version.
 
 ---
 
