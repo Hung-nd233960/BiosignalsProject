@@ -5,15 +5,16 @@ All signals satisfy the Volume B lab constraints:
   - sampling at FS (250 Hz default)
   - duration at least DURATION (1200 s default)
 """
+
 import numpy as np
 from .config import FS, DURATION, SEED, F_MAX
 
 
 def make_time_axis(duration=DURATION, fs=FS):
     """Return the sample indices n and the corresponding time axis t (seconds)."""
-    N = int(duration * fs)           # total number of samples
-    n = np.arange(N)                 # sample indices [0, 1, ..., N-1]
-    t = n / fs                       # time in seconds
+    N = int(duration * fs)  # total number of samples
+    n = np.arange(N)  # sample indices [0, 1, ..., N-1]
+    t = n / fs  # time in seconds
     return n, t
 
 
@@ -37,7 +38,7 @@ def make_tone(f0, A=1.0, phi=0.0, duration=DURATION, fs=FS):
     t : ndarray — the time axis in seconds
     """
     assert f0 < F_MAX, f"f0={f0} Hz exceeds F_MAX={F_MAX} Hz"
-    n, t = make_time_axis(duration, fs)    # generate time axis
+    n, t = make_time_axis(duration, fs)  # generate time axis
     x = A * np.cos(2 * np.pi * f0 * n / fs + phi)  # Equation (AA.1)
     return x, n, t
 
@@ -61,16 +62,16 @@ def make_mixed_tones(freqs, amplitudes=None, phases=None, duration=DURATION, fs=
     n : ndarray — the sample indices
     t : ndarray — the time axis in seconds
     """
-    K = len(freqs)                                        # number of components
+    K = len(freqs)  # number of components
     if amplitudes is None:
-        amplitudes = [1.0] * K                            # default: unit amplitude
+        amplitudes = [1.0] * K  # default: unit amplitude
     if phases is None:
-        phases = [0.0] * K                                # default: zero phase
+        phases = [0.0] * K  # default: zero phase
     for f in freqs:
         assert f < F_MAX, f"f={f} Hz exceeds F_MAX={F_MAX} Hz"
-    n, t = make_time_axis(duration, fs)                   # generate time axis
-    x = np.zeros(len(n))                                  # initialize signal
-    for i in range(K):                                    # sum each component
+    n, t = make_time_axis(duration, fs)  # generate time axis
+    x = np.zeros(len(n))  # initialize signal
+    for i in range(K):  # sum each component
         x += amplitudes[i] * np.cos(2 * np.pi * freqs[i] * n / fs + phases[i])
     return x, n, t
 
@@ -96,12 +97,12 @@ def make_chirp(f0, mu, A=1.0, phi=0.0, duration=DURATION, fs=FS):
     n : ndarray — the sample indices
     t : ndarray — the time axis in seconds
     """
-    n, t = make_time_axis(duration, fs)                   # generate time axis
-    f_end = f0 + mu * duration                            # final frequency
+    n, t = make_time_axis(duration, fs)  # generate time axis
+    f_end = f0 + mu * duration  # final frequency
     assert f0 < F_MAX, f"f0={f0} Hz exceeds F_MAX={F_MAX} Hz"
     assert f_end < F_MAX, f"f_end={f_end:.1f} Hz exceeds F_MAX={F_MAX} Hz"
     phase = 2 * np.pi / fs * (f0 * n + mu / 2 * n**2 / fs) + phi  # Equation (AA.3)
-    x = A * np.cos(phase)                                 # generate signal
+    x = A * np.cos(phase)  # generate signal
     return x, n, t
 
 
@@ -125,19 +126,19 @@ def make_multi_chirp(f0s, mus, amplitudes=None, phases=None, duration=DURATION, 
     n : ndarray — the sample indices
     t : ndarray — the time axis in seconds
     """
-    K = len(f0s)                                          # number of chirp components
+    K = len(f0s)  # number of chirp components
     if amplitudes is None:
-        amplitudes = [1.0] * K                            # default: unit amplitude
+        amplitudes = [1.0] * K  # default: unit amplitude
     if phases is None:
-        phases = [0.0] * K                                # default: zero phase
-    n, t = make_time_axis(duration, fs)                   # generate time axis
-    x = np.zeros(len(n))                                  # initialize signal
-    for i in range(K):                                    # sum each chirp component
-        f_end = f0s[i] + mus[i] * duration                # check endpoint
+        phases = [0.0] * K  # default: zero phase
+    n, t = make_time_axis(duration, fs)  # generate time axis
+    x = np.zeros(len(n))  # initialize signal
+    for i in range(K):  # sum each chirp component
+        f_end = f0s[i] + mus[i] * duration  # check endpoint
         assert f0s[i] < F_MAX, f"f0={f0s[i]} Hz exceeds F_MAX={F_MAX} Hz"
         assert f_end < F_MAX, f"f_end={f_end:.1f} Hz exceeds F_MAX={F_MAX} Hz"
         phase = 2 * np.pi / fs * (f0s[i] * n + mus[i] / 2 * n**2 / fs) + phases[i]
-        x += amplitudes[i] * np.cos(phase)                # accumulate
+        x += amplitudes[i] * np.cos(phase)  # accumulate
     return x, n, t
 
 
@@ -166,13 +167,13 @@ def make_transient(n0, sigma_t, f0=0.0, A=1.0, phi=0.0, duration=DURATION, fs=FS
     """
     if f0 > 0:
         assert f0 < F_MAX, f"f0={f0} Hz exceeds F_MAX={F_MAX} Hz"
-    n, t = make_time_axis(duration, fs)                   # generate time axis
-    envelope = A * np.exp(-((n - n0) ** 2) / (2 * sigma_t ** 2))  # Gaussian envelope
+    n, t = make_time_axis(duration, fs)  # generate time axis
+    envelope = A * np.exp(-((n - n0) ** 2) / (2 * sigma_t**2))  # Gaussian envelope
     if f0 > 0:
         carrier = np.cos(2 * np.pi * f0 * n / fs + phi)  # carrier oscillation
     else:
-        carrier = np.ones(len(n))                         # no carrier (baseband)
-    x = envelope * carrier                                # Equation (AA.6)
+        carrier = np.ones(len(n))  # no carrier (baseband)
+    x = envelope * carrier  # Equation (AA.6)
     return x, n, t
 
 
@@ -194,7 +195,7 @@ def make_noise(sigma=1.0, duration=DURATION, fs=FS, seed=SEED):
     n : ndarray — the sample indices
     t : ndarray — the time axis in seconds
     """
-    rng = np.random.default_rng(seed)                     # seeded RNG for reproducibility
-    n, t = make_time_axis(duration, fs)                   # generate time axis
-    x = rng.normal(loc=0.0, scale=sigma, size=len(n))     # Equation (AA.8)
+    rng = np.random.default_rng(seed)  # seeded RNG for reproducibility
+    n, t = make_time_axis(duration, fs)  # generate time axis
+    x = rng.normal(loc=0.0, scale=sigma, size=len(n))  # Equation (AA.8)
     return x, n, t

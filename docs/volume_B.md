@@ -988,4 +988,193 @@ For EEG at $f_s = 250$ Hz: a 1-second window ($M = 256$) gives $\Delta f = 0.977
 
 ---
 
-*Next: B.4 — The STFT of a Fluctuating Signal. The DFT and windowing tools from Labs 1–3 are combined into the STFT, and the Heisenberg uncertainty tradeoff is demonstrated directly.*
+---
+
+## B.4 — Lab 4: The STFT of a Fluctuating Signal  *(↔ A.5)*
+
+### Introduction
+
+The DFT (Lab 1) gives frequency content but discards all timing. Welch's method (Lab 2) averages over time explicitly. For any signal whose frequency content changes — an EEG rhythm that comes and goes, a chirp that sweeps — we need both axes simultaneously. The STFT (Section A.5) provides this: it slides a windowed DFT across time and keeps each segment's spectrum indexed by position. The result is the **spectrogram** — the first usable time-frequency representation in this report.
+
+This lab tests:
+
+- The STFT definition and the spectrogram as a 2D time-frequency plot (A.5.1).
+- The **Heisenberg uncertainty tradeoff**: $\Delta t \cdot \Delta f = \beta$ is constant; window length $M$ slides between time and frequency resolution (A.5.2).
+- **Overlap and the tapering problem**: how the window's taper suppresses edge samples, and how overlap (COLA) recovers them (A.5.3).
+- The **multi-scale limitation**: no single STFT window can capture both a narrow-band chirp and a short transient simultaneously.
+
+### Setup
+
+**Model signal.** A linear chirp sweeping from $f_0 = 5$ Hz to $f_1 = 45$ Hz over 120 seconds (Equation (AA.3)):
+
+$$
+x[n] = A \cos\!\left(\frac{2\pi}{f_s}\left(f_0 n + \frac{\mu}{2}\frac{n^2}{f_s}\right)\right) \tag{B.28}
+$$
+
+with chirp rate $\mu = (f_1 - f_0)/T = 40/120 = 0.333$ Hz/s. The instantaneous frequency at time $t$ is $f_{\text{inst}}(t) = 5 + 0.333\,t$ Hz. The signal duration is 120 s (shorter than the 1200 s lab default so the chirp diagonal is visible at all zoom levels).
+
+For Experiments B and C, an alpha burst (10 Hz Gaussian-enveloped transient, Equation (AA.6)) is added at $t = 60$ s:
+
+$$
+x_{\text{burst}}[n] = A_b \exp\!\left(-\frac{(n - n_0)^2}{2\sigma_t^2}\right) \cos\!\left(\frac{2\pi f_b}{f_s} n\right) \tag{B.29}
+$$
+
+with $A_b = 3$, $f_b = 10$ Hz, $\sigma_t = 125$ samples (0.5 s).
+
+**STFT computation:**
+
+```python
+import numpy as np
+from scipy import signal as sp_signal
+from src.common import FS, make_chirp, make_transient, plot_time_domain, save_figure
+
+def compute_stft(x, fs=FS, nperseg=256, noverlap=None, window="hann"):
+    if noverlap is None:
+        noverlap = nperseg // 2                           # default 50% overlap
+    f_stft, t_stft, Sxx = sp_signal.spectrogram(
+        x, fs=fs, nperseg=nperseg,                        # window length
+        noverlap=noverlap,                                # overlap
+        window=window,                                    # window type
+    )
+    return t_stft, f_stft, Sxx
+```
+
+**Experiment A — Heisenberg tradeoff.** The chirp is analyzed with Hann windows at four lengths ($M = 125, 250, 500, 1250$ samples), all with 50% overlap.
+
+```python
+F0_CHIRP = 5.0                                            # start frequency (Hz)
+F1_CHIRP = 45.0                                           # end frequency (Hz)
+DURATION_LAB = 120.0                                      # signal duration (s)
+MU_CHIRP = (F1_CHIRP - F0_CHIRP) / DURATION_LAB           # 0.333 Hz/s
+
+x, n, t = make_chirp(F0_CHIRP, MU_CHIRP, A=1.0, duration=DURATION_LAB)
+
+for M in [125, 250, 500, 1250]:                           # window length sweep
+    dt = M / FS                                           # time resolution (s)
+    df = 2 * FS / M                                       # freq resolution (Hz), β=2
+    noverlap = M // 2                                     # 50% overlap (Hann COLA)
+    t_stft, f_stft, Sxx = compute_stft(x, nperseg=M, noverlap=noverlap)
+    # ... plot dual-stack spectrogram
+```
+
+**Experiment B — Overlap and tapering.** The chirp + burst signal is analyzed with a fixed $M = 256$ at three overlap settings (0%, 50%, 75%), zoomed to the burst region (55–65 s). White dashed lines mark the true burst extent (±2σ).
+
+```python
+x_chirp, _, _ = make_chirp(F0_CHIRP, MU_CHIRP, A=1.0, duration=DURATION_LAB)
+n0 = int(60.0 * FS)                                      # burst at t=60 s
+sigma_t = int(0.5 * FS)                                   # σ = 0.5 s
+x_burst, _, _ = make_transient(n0, sigma_t, f0=10.0, A=3.0, duration=DURATION_LAB)
+x = x_chirp + x_burst                                    # combined signal
+
+M = 256                                                   # fixed window
+for overlap_frac in [0.0, 0.5, 0.75]:                    # overlap sweep
+    noverlap = int(M * overlap_frac)
+    t_stft, f_stft, Sxx = compute_stft(x, nperseg=M, noverlap=noverlap)
+    # ... plot with burst reference lines at t = 59 s and t = 61 s
+```
+
+**Experiment C — Multi-scale limitation.** The same chirp + burst signal, analyzed with a short window ($M = 125$, 0.5 s) and a long window ($M = 1250$, 5 s), zoomed to the burst region. White dashed lines mark the true burst extent.
+
+Full source: `src/lab4_stft/lab4.py`.
+
+### Parameters
+
+**Table B.7 — Lab 4 parameters**
+
+| Parameter | Experiment A | Experiment B | Experiment C |
+| --- | --- | --- | --- |
+| $f_s$ (Hz) | 250 | 250 | 250 |
+| Duration (s) | 120 | 120 | 120 |
+| Chirp $f_0$ (Hz) | 5.0 | 5.0 | 5.0 |
+| Chirp $f_1$ (Hz) | 45.0 | 45.0 | 45.0 |
+| Chirp rate $\mu$ (Hz/s) | 0.333 | 0.333 | 0.333 |
+| Burst center (s) | — | 60.0 | 60.0 |
+| Burst $\sigma_t$ (s) | — | 0.5 | 0.5 |
+| Burst freq (Hz) | — | 10.0 | 10.0 |
+| Burst amplitude | — | 3.0 | 3.0 |
+| Window | Hann | Hann | Hann |
+| Window lengths $M$ | 125, 250, 500, 1250 | 256 | 125, 1250 |
+| Overlap | 50% | 0%, 50%, 75% | 50% |
+
+### Results
+
+**Experiment A — Heisenberg tradeoff.**
+
+Figure B.15 shows the chirp in the time domain (first 5 seconds).
+
+![Figure B.15 — Linear chirp 5→45 Hz, time domain](../results/graphs/lab4/figure_B_15.png)
+
+Figures B.16–B.19 show the spectrogram of the same chirp at four window lengths. The diagonal sweeps from 5 Hz to 45 Hz over 120 seconds. The key observation: the diagonal's **thickness** changes with $M$, but the $\Delta t \cdot \Delta f$ product is constant at $\beta = 2$.
+
+![Figure B.16 — M=125 (0.5 s): thick diagonal, Δf=4.0 Hz](../results/graphs/lab4/figure_B_16.png)
+
+![Figure B.17 — M=250 (1.0 s): moderate thickness, Δf=2.0 Hz](../results/graphs/lab4/figure_B_17.png)
+
+![Figure B.18 — M=500 (2.0 s): thin diagonal, Δf=1.0 Hz](../results/graphs/lab4/figure_B_18.png)
+
+![Figure B.19 — M=1250 (5.0 s): very thin diagonal, Δf=0.4 Hz, but staircase steps in time](../results/graphs/lab4/figure_B_19.png)
+
+| Window $M$ (samples) | $\Delta t$ (s) | $\Delta f$ (Hz) | $\Delta t \cdot \Delta f$ | Diagonal appearance |
+| --- | --- | --- | --- | --- |
+| 125 (0.5 s) | 0.50 | 4.00 | 2.0 | Thick, fuzzy — good time steps |
+| 250 (1.0 s) | 1.00 | 2.00 | 2.0 | Moderate thickness |
+| 500 (2.0 s) | 2.00 | 1.00 | 2.0 | Thin — frequency well resolved |
+| 1250 (5.0 s) | 5.00 | 0.40 | 2.0 | Very thin, but 5 s time steps |
+
+Every row has $\Delta t \cdot \Delta f = 2.0$ (Hann's $\beta$). The slider moves, the area doesn't shrink. This is the uncertainty principle (Equation (A.40)) made visible.
+
+**Experiment B — Overlap and tapering.**
+
+Figures B.20–B.22 show the same chirp + burst signal analyzed with $M = 256$ at three overlap levels, zoomed to the burst region. White dashed lines mark the true burst extent (±2σ = 59–61 s).
+
+![Figure B.20 — 0% overlap: burst visible but gaps from tapering](../results/graphs/lab4/figure_B_20.png)
+
+![Figure B.21 — 50% overlap: COLA satisfied, uniform coverage](../results/graphs/lab4/figure_B_21.png)
+
+![Figure B.22 — 75% overlap: smoother but no sharper than 50%](../results/graphs/lab4/figure_B_22.png)
+
+| Overlap | Hop $H$ | Columns | Segments per sample | Observation |
+| --- | --- | --- | --- | --- |
+| 0% | 256 | 117 | 1.0 | Burst shows gaps; edge samples suppressed by taper |
+| 50% | 128 | 233 | 2.0 | COLA satisfied; burst cleanly captured within reference lines |
+| 75% | 64 | 465 | 4.0 | Smoother time axis, but no finer resolution than 50% |
+
+At 0% overlap, the Hann window multiplies edge samples by zero — features at segment boundaries can be lost (Section A.5.3). At 50%, the COLA condition (Equation (A.42)) is satisfied: every sample receives equal total weight, and the burst is captured completely. At 75%, the spectrogram has more columns (finer time grid) but no additional resolution — the same distinction as zero-padding (Section A.2.3), now on the time axis.
+
+**Experiment C — Multi-scale limitation.**
+
+Figure B.23 shows the chirp + alpha burst in the time domain, zoomed to the burst region.
+
+![Figure B.23 — Chirp + alpha burst, time domain (zoomed)](../results/graphs/lab4/figure_B_23.png)
+
+Figures B.24–B.25 show the same signal analyzed with a short window and a long window. White dashed lines mark the true burst extent.
+
+![Figure B.24 — Short window M=125 (0.5 s): burst localized, chirp smeared](../results/graphs/lab4/figure_B_24.png)
+
+![Figure B.25 — Long window M=1250 (5.0 s): chirp sharp, burst smeared far beyond true extent](../results/graphs/lab4/figure_B_25.png)
+
+| Window | $\Delta t$ (s) | $\Delta f$ (Hz) | Burst | Chirp |
+| --- | --- | --- | --- | --- |
+| Short ($M = 125$) | 0.50 | 4.00 | Localized within reference lines | Smeared into a broad band |
+| Long ($M = 1250$) | 5.00 | 0.40 | Smeared far beyond reference lines | Sharp, thin diagonal |
+
+The short window captures the burst correctly (energy stays within the white dashed lines) but smears the chirp into a thick band. The long window sharpens the chirp into a thin diagonal but smears the burst across the entire 10-second view — far beyond its true 2-second extent. No single window captures both: the burst needs $\Delta t \leq 1$ s, the chirp needs $\Delta f \leq 1$ Hz, but $\Delta t \cdot \Delta f = 2$ means you cannot have both simultaneously.
+
+### Verification
+
+| Prediction (Volume A) | Measured | Confirmed? |
+| --- | --- | --- |
+| $\Delta t \cdot \Delta f = \beta = 2$ for Hann (Eq. A.39) | 2.0 at all four $M$ values | Yes |
+| COLA at 50% overlap for Hann (Eq. A.42) | Uniform coverage, no gaps | Yes |
+| Overlap beyond COLA adds columns, not resolution (A.5.3) | 75% smoother but not sharper than 50% | Yes |
+| Multi-scale signals cannot be captured by a single $M$ | Short $M$ smears chirp, long $M$ smears burst | Yes |
+
+### Conclusion
+
+The STFT is the first tool in this report that answers "what frequency is present at what time." The Heisenberg tradeoff is real and inescapable: $\Delta t \cdot \Delta f = \beta$ is constant across all window lengths (Figures B.16–B.19). Overlap solves the tapering problem (Figure B.20 vs B.21), and the COLA condition guarantees uniform sample coverage.
+
+The multi-scale experiment (Figures B.24–B.25) reveals the STFT's fundamental limitation: it forces a single choice of $M$ for the entire signal. When the signal contains features at different time-frequency scales — a narrow-band rhythm and a short transient, as EEG often does — no single window captures both. This limitation motivates the Wigner-Ville Distribution (Lab 7), which is not bound by the uncertainty principle in the same way.
+
+---
+
+*Next: B.5 — Two-Tone Resolution on the Spectrogram. The resolution limit $\Delta f_{\min} \approx \beta \cdot f_s / M$ from Lab 3 is confirmed visually: two stationary tones on a spectrogram — too close and they merge into one line, far enough and they split into two.*
