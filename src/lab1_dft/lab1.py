@@ -196,21 +196,21 @@ def experiment_zero_padding():
     Zero-pad a short segment and show that bin count increases
     but frequency resolution does not.
     """
-    # --- Use a shorter segment to make the effect visible ---
-    short_dur = 1.0  # 1-second segment
-    x, n, t = make_mixed_tones([10.0, 11.0], amplitudes=[1.0, 1.0], duration=short_dur)
+    # --- Two tones BELOW the resolution limit ---
+    short_dur = 1.0  # 1-second segment → Δf_min = 1.0 Hz
+    f1_zp, f2_zp = 10.0, 10.5  # separation = 0.5 Hz < Δf_min = 1.0 Hz
+    x, n, t = make_mixed_tones([f1_zp, f2_zp], amplitudes=[1.0, 1.0], duration=short_dur)
     N_orig = len(x)  # original length
     N_padded = N_orig * ZERO_PAD_FACTOR  # zero-padded length
 
     delta_f_orig = FS / N_orig  # original bin spacing
     delta_f_padded = FS / N_padded  # padded bin spacing
+    separation = f2_zp - f1_zp  # 0.5 Hz
     print("\nZero-padding experiment:")
     print(f"Original: N={N_orig}, Δf={delta_f_orig:.2f} Hz")
     print(f"Padded:   N={N_padded}, Δf={delta_f_padded:.4f} Hz")
     print(f"Resolution (determined by original N): Δf_min = {delta_f_orig:.2f} Hz")
-    print(
-        f"Tones at 10 Hz and 11 Hz — separation = 1 Hz vs Δf_min = {delta_f_orig:.2f} Hz"
-    )
+    print(f"Tones at {f1_zp} Hz and {f2_zp} Hz - separation = {separation} Hz < Δf_min = {delta_f_orig:.2f} Hz")
 
     # --- Compute DFTs ---
     freqs_orig, X_orig = compute_dft(x, n_fft=N_orig)  # no zero-padding
@@ -223,14 +223,14 @@ def experiment_zero_padding():
     fig1, _ = plot_dual_stack_spectrum(
         freqs_orig,
         P_orig,
-        title="Original (no zero-padding)",
+        title=f"10 Hz + 10.5 Hz, original (no zero-padding) - NOT resolved",
         fig_id="Figure B.4a",
         f_range=f_show,
     )
     fig2, _ = plot_dual_stack_spectrum(
         freqs_pad,
         P_pad,
-        title=f"Zero-padded (×{ZERO_PAD_FACTOR})",
+        title=f"10 Hz + 10.5 Hz, zero-padded x{ZERO_PAD_FACTOR} - still NOT resolved",
         fig_id="Figure B.4b",
         f_range=f_show,
     )

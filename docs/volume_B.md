@@ -277,10 +277,10 @@ plot_time_domain(t, x, fig_id="Figure B.3a", t_range=(0, 0.5))
 plot_dual_stack_spectrum(freqs, P, fig_id="Figure B.3b", f_range=(0, 30))
 ```
 
-**Experiment C - Zero-padding.** 1-second segment, two tones at 10 Hz and 11 Hz, 4× zero-padding.
+**Experiment C - Zero-padding.** 1-second segment, two tones at 10 Hz and 10.5 Hz (separation 0.5 Hz, **below** $\Delta f_{\min} = 1.0$ Hz), 4x zero-padding.
 
 ```python
-x, n, t = make_mixed_tones([10.0, 11.0], amplitudes=[1.0, 1.0], duration=1.0)
+x, n, t = make_mixed_tones([10.0, 10.5], amplitudes=[1.0, 1.0], duration=1.0)
 N_orig = len(x)                                           # 250 samples
 N_padded = N_orig * 4                                     # 1000 samples (zero-padded)
 
@@ -304,7 +304,7 @@ plot_dual_stack_spectrum(freqs_pad, compute_power(X_pad, N_orig),
 | $N$ (samples) | 250 | 300 000 | 250 |
 | $\Delta f$ (Hz) | 1.0 | 0.000833 | 1.0 |
 | $f_0$ or $f_1$ (Hz) | 10.0 / 10.5 | 10.0 | 10.0 |
-| $f_2$ (Hz) | - | 12.0 | 11.0 |
+| $f_2$ (Hz) | - | 12.0 | 10.5 |
 | Amplitude $A$ | 1.0 | 1.0 | 1.0 |
 | Zero-pad factor | - | - | 4× |
 
@@ -330,7 +330,7 @@ This is the Dirichlet kernel (Lab 3, Equation (B.11)) in action. At 10.5 Hz, the
 
 ![Figure B.3b - Dual-tone chord spectrum](../results/graphs/lab1/figure_B_06.png)
 
-**Experiment C** - Figure B.4 compares the original and zero-padded spectra. The original ($N = 250$, $\Delta f = 1.0$ Hz, Figure B.4a) shows two tones at the resolution limit - barely distinguishable. The zero-padded spectrum ($N = 1000$, $\Delta f = 0.25$ Hz, Figure B.4b) shows the same two lobes sampled more densely - smoother, but no sharper. Zero-padding interpolated the same DTFT curve; it did not resolve the two tones.
+**Experiment C** - Figure B.4 compares the original and zero-padded spectra of two tones at 10 Hz and 10.5 Hz (separation 0.5 Hz, below $\Delta f_{\min} = 1.0$ Hz). The original ($N = 250$, $\Delta f = 1.0$ Hz, Figure B.4a) shows a single lobe - the two tones are merged. The zero-padded spectrum ($N = 1000$, $\Delta f = 0.25$ Hz, Figure B.4b) shows the same single lobe sampled more densely - smoother, but still one peak with no dip. Zero-padding added bins between the peaks, but the DTFT itself has no dip to reveal. The two tones are unresolvable at this duration, and no amount of zero-padding changes that.
 
 ![Figure B.4a - Original, no zero-padding](../results/graphs/lab1/figure_B_07.png)
 
@@ -344,7 +344,7 @@ This is the Dirichlet kernel (Lab 3, Equation (B.11)) in action. At 10.5 Hz, the
 | On-bin tone (10.0 Hz) → single spike, no leakage | Zero leakage (−200 dB floor) | Yes |
 | Off-bin tone (10.5 Hz) → energy spread across all bins | Leakage across entire band (never below −25 dB) | Yes |
 | Two tones at 2.0 Hz separation → resolved | Two distinct spikes | Yes |
-| Zero-padding (4×) changes $\Delta f$ but not resolution | Bin spacing reduced, resolution unchanged | Yes |
+| Zero-padding (4x) on tones 0.5 Hz apart (below $\Delta f_{\min}$) | Single lobe in both original and padded - not resolved | Yes |
 
 ### Conclusion
 
