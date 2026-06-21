@@ -1,9 +1,26 @@
-# Volume B - Application and Derivation (Labs)
+# From the DFT to the SPWVD: Time-Frequency Analysis Applied to Neonatal EEG
 
-> Each lab derives the mathematics, implements it in code, and verifies the theory graphically.
-> Labs are paired to the theory sections they test.
-> All model signals satisfy the EEG-realism constraints: frequencies below 100 Hz, duration ≥ 1200 s, sampling at 250 Hz.
->
+## Volume B - Application and Derivation (Labs)
+
+**Author:** Nguyen Duc Hung - 20233960
+
+### What this volume covers
+
+Volume B validates the theory from Volume A through 8 labs, each paired to a theory section. Every lab follows a fixed six-section template (Introduction, Setup, Parameters, Results, Verification, Conclusion) with explicit code, inline figures, and quantitative verification against Volume A predictions.
+
+- **Lab 1** (DFT) - bins, on-bin vs off-bin leakage, zero-padding *(↔ A.1, A.2)*
+- **Lab 2** (Statistics) - exponential distribution, noise floor, Welch *(↔ A.4)*
+- **Lab 3** (Windowing) - Dirichlet kernel derivation, window spectra, pure sine form *(↔ A.3)*
+- **Lab 4** (STFT) - Heisenberg tradeoff, overlap/COLA, multi-scale limitation *(↔ A.5)*
+- **Lab 5** (Resolution) - two-tone test on spectrograms *(↔ A.3, A.5)*
+- **Lab 6** (Autocorrelation) - periodicity, Wiener-Khinchin, phase-blindness, cross-correlation *(↔ A.6)*
+- **Lab 7** (WVD) - chirp sharpness, cross-terms, analytic signal *(↔ A.7)*
+- **Lab 8** (SPWVD) - PWVD vs SPWVD, two-knob sweep, duality of ghost types *(↔ A.8)*
+- **Appendix B1** - the M vs M-1 window convention and convergence proof
+- **Appendix B2** - coefficient of variation (CV) of the six signal archetypes
+
+All model signals satisfy EEG-realism constraints: frequencies below 100 Hz, duration at least 1200 s (Labs 1-6) or 2.0 s (Labs 7-8, justified by WVD computational cost), sampling at 250 Hz.
+
 ## Basis Functions and Infrastructure
 
 Before any lab, we establish the shared code that every experiment imports. This infrastructure enforces the project standards from CLAUDE.md - EEG-realism constraints, reproducibility, plotting conventions - in one place, so no lab needs to redefine them.
@@ -338,7 +355,6 @@ This is the Dirichlet kernel (Lab 3, Equation (B.11)) in action. At 10.5 Hz, the
 
 ### Verification
 
-
 **Table B.2 - Verification**
 
 | Prediction (Volume A) | Measured | Confirmed? |
@@ -483,7 +499,6 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 
 ![Figure B.7 - Periodogram with detection thresholds](../results/graphs/lab2/figure_B_03.png)
 
-
 **Table B.4 - Detection thresholds**
 
 | Threshold $\gamma$ | $P_{fa} = e^{-\gamma}$ | Threshold value | Detected? |
@@ -496,7 +511,6 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 
 ![Figure B.8 - Welch averaging progression](../results/graphs/lab2/figure_B_04.png)
 
-
 **Table B.5 - Welch progression**
 
 | Segment | $L$ | $\Delta f$ (Hz) | Relative variance | Spectrum appearance |
@@ -507,7 +521,6 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 | 2 s | 1199 | 0.500 | 0.001 | Smoothest, but tone peak is wide |
 
 ### Verification
-
 
 **Table B.6 - Verification**
 
@@ -533,7 +546,6 @@ Welch's method demonstrates the resolution-variance tradeoff: 5-second segments 
 Lab 1 showed leakage from off-bin tones under the rectangular window. This lab derives *why* leakage occurs (the Dirichlet kernel) and *how* the cosine-sum windows suppress it. All derivations use the periodic convention ($M$) as justified in Section A.3.3. Appendix B provides the symmetric ($M-1$) derivation and proves the two conventions converge as $M \to \infty$.
 
 ### Setup
-
 
 ### Parameters
 
@@ -696,7 +708,6 @@ In dB: $20\log_{10}(2/(3\pi)) = -13.5$ dB.
 
 **Comparison:**
 
-
 **Table B.8 - Side-lobe strength comparison**
 
 | Method | Bin position | Magnitude | dB |
@@ -757,7 +768,6 @@ dB_per_octave = slope * 20 * np.log10(2)                  # convert to dB/octave
 **Results** (Figure B.12):
 
 ![Figure B.12 - Side-lobe decay analysis](../results/graphs/lab3/figure_B_12.png)
-
 
 **Table B.10 - Decay regression results**
 
@@ -1098,7 +1108,6 @@ Figures B.16-B.19 show the spectrogram of the same chirp at four window lengths,
 
 ![Figure B.19 - M=1250 (5.0 s): very thin diagonal, Δf=0.4 Hz, but staircase steps in time](../results/graphs/lab4/figure_B_19.png)
 
-
 **Table B.14 - Heisenberg tradeoff**
 
 | Window $M$ (samples) | $\Delta t$ (s) | $\Delta f$ (Hz) | $\Delta t \cdot \Delta f$ | Diagonal appearance |
@@ -1119,7 +1128,6 @@ Figures B.20-B.22 show the same chirp + burst signal analyzed with $M = 256$ at 
 ![Figure B.21 - 50% overlap: COLA satisfied, uniform coverage](../results/graphs/lab4/figure_B_21.png)
 
 ![Figure B.22 - 75% overlap: smoother but no sharper than 50%](../results/graphs/lab4/figure_B_22.png)
-
 
 **Table B.15 - Overlap comparison**
 
@@ -1143,7 +1151,6 @@ Figures B.24-B.25 show the same signal analyzed with a short window and a long w
 
 ![Figure B.25 - Long window M=1250 (5.0 s): chirp sharp, burst smeared far beyond true extent](../results/graphs/lab4/figure_B_25.png)
 
-
 **Table B.16 - Multi-scale comparison**
 
 | Window | $\Delta t$ (s) | $\Delta f$ (Hz) | Burst | Chirp |
@@ -1154,7 +1161,6 @@ Figures B.24-B.25 show the same signal analyzed with a short window and a long w
 The short window captures the burst correctly (energy stays within the white dashed lines) but smears the chirp into a thick band. The long window sharpens the chirp into a thin diagonal but smears the burst across the entire 10-second view - far beyond its true 2-second extent. No single window captures both: the burst needs $\Delta t \leq 1$ s, the chirp needs $\Delta f \leq 1$ Hz, but $\Delta t \cdot \Delta f = 2$ means you cannot have both simultaneously.
 
 ### Verification
-
 
 **Table B.17 - Verification**
 
@@ -1190,7 +1196,6 @@ $$
 with $f_1 = 10$ Hz (alpha band) and $f_2 = f_1 + \Delta$. The separation $\Delta$ is swept across four values: 0.5 Hz, 2.0 Hz, 3.0 Hz, 5.0 Hz. For each separation, the STFT is computed with three windows (Rectangular, Hann, Blackman) at $M = 256$ (1.024 s) with 50% overlap.
 
 **Resolution limits at $M = 256$, $f_s = 250$ Hz:**
-
 
 **Table B.18 - Results**
 
@@ -1269,7 +1274,6 @@ Figure B.26 shows the time-domain beat patterns at each separation.
 ![Figure B.30 - Δ = 5.0 Hz: all windows clearly resolved](../results/graphs/lab5/figure_B_30.png)
 
 ### Verification
-
 
 **Table B.20 - Resolution test results**
 
@@ -1452,7 +1456,7 @@ where $\eta_1$ and $\eta_2$ are independent white Gaussian noise ($\sigma = 1.0$
 ```python
 def compute_autocorrelation_cross(x, y):
     """Cross-correlation r_xy[l] = Σ x[n] y[n-l], positive lags only.
-    Uses np.correlate — same as autocorrelation but with two different inputs."""
+    Uses np.correlate - same as autocorrelation but with two different inputs."""
     N = len(x)                                             # signal length
     r_full = np.correlate(x, y, mode="full")               # full cross-correlation
     r = r_full[N - 1:]                                     # positive lags
@@ -1478,11 +1482,11 @@ lags, r_noshr = compute_autocorrelation_cross(x1_no, x2_no)
 rho_noshr = np.corrcoef(x1_no, x2_no)[0, 1]               # should be ≈ 0
 ```
 
-Figure B.36 shows the shared-tone case. The time domain (top) shows two noisy signals that roughly track each other — the shared 10 Hz tone is buried but present. The cross-correlation (bottom) reveals it: periodic peaks at 0.1 s intervals (= 1/10 Hz), with ρ = 0.1068. The shared tone survives cross-correlation; the independent noise cancels.
+Figure B.36 shows the shared-tone case. The time domain (top) shows two noisy signals that roughly track each other - the shared 10 Hz tone is buried but present. The cross-correlation (bottom) reveals it: periodic peaks at 0.1 s intervals (= 1/10 Hz), with ρ = 0.1068. The shared tone survives cross-correlation; the independent noise cancels.
 
 ![Figure B.36 - Shared 10 Hz tone: time domain + cross-correlation](../results/graphs/lab6/figure_B_36.png)
 
-Figure B.37 shows the no-shared case. The time domain (top two panels) shows two unrelated signals — x₁ at 10 Hz and x₂ at 20 Hz, each with independent noise. The cross-correlation (bottom) is flat noise with no periodic structure, ρ = -0.0062 (effectively zero).
+Figure B.37 shows the no-shared case. The time domain (top two panels) shows two unrelated signals - x₁ at 10 Hz and x₂ at 20 Hz, each with independent noise. The cross-correlation (bottom) is flat noise with no periodic structure, ρ = -0.0062 (effectively zero).
 
 ![Figure B.37 - No shared component: time domain + cross-correlation](../results/graphs/lab6/figure_B_37.png)
 
@@ -1517,12 +1521,339 @@ Cross-correlation extends this to two signals: it detects shared structure (ρ =
 
 The phase-blindness of autocorrelation is the limitation that the WVD addresses. The WVD (Lab 7) computes an *instantaneous* autocorrelation $r_n[l] = x[n + l/2] \cdot x^*[n - l/2]$ at each time position $n$, then takes the DFT over lag $l$. The Wiener-Khinchin theorem becomes a time-indexed family of Fourier pairs - one instantaneous power spectrum at each $n$. That is the bridge from here to the sharpest time-frequency representation.
 
-*Next: B.7 - The WVD and its Tradeoffs. The global autocorrelation becomes instantaneous; the Wiener-Khinchin Fourier transform becomes time-indexed. The result is the sharpest possible time-frequency representation of a single-component signal - and the cross-term problem that drives the rest of the report.*
+## B.7 - Lab 7: The WVD and its Tradeoffs  *(↔ A.7)*
+
+### Introduction
+
+The STFT (Lab 4) recovers time-frequency localization but is bound by the Heisenberg uncertainty principle (Equation (A.49)). The Wigner-Ville Distribution (Section A.7) bypasses this limit by computing the DFT of the instantaneous autocorrelation (Equation (A.60)-(A.61)), achieving razor-sharp concentration for single-component signals. However, its quadratic nature introduces cross-terms for multi-component signals (Section A.7.3), and real-valued signals produce a DC self-ghost (Section A.7.5).
+
+This lab verifies:
+
+- The WVD achieves sharper resolution than the STFT on a single chirp.
+- Multi-component signals generate cross-terms at the midpoint frequency.
+- The analytic signal (Hilbert transform) removes the DC self-ghost.
+
+### Setup
+
+**Duration justification.** The WVD has O(N²) computational complexity. At N = 300,000 (1200 s), the computation would require ~90 billion operations. All signals use 2.0 s (N = 500) - standard for WVD demonstrations.
+
+**Experiment A - Single chirp.** Linear chirp from 10 to 80 Hz (µ = 35 Hz/s):
+
+```python
+from src.common import FS, make_chirp, wigner_ville
+from scipy.signal import stft as scipy_stft
+
+x, _, t = make_chirp(10.0, 35.0, A=1.0, duration=2.0)     # 10-80 Hz chirp
+
+# --- STFT for comparison ---
+f_stft, t_stft, Zxx = scipy_stft(                         # scipy STFT
+    x, FS, window="hann",
+    nperseg=64,                                            # 64 samples (0.256 s)
+    noverlap=32, nfft=512,
+)
+Sxx = np.abs(Zxx)**2                                      # power spectrogram
+
+# --- WVD (analytic signal + interpolation handled internally) ---
+wvd, t_wvd, f_wvd = wigner_ville(x, FS, n_fft=512)       # from src/common/wvd.py
+```
+
+**Experiment B - Chirp + tone (cross-terms).** Chirp (10-90 Hz, µ = 40 Hz/s) plus a stationary tone at 40 Hz:
+
+```python
+from src.common import make_tone
+
+x_chirp, _, t = make_chirp(10.0, 40.0, A=1.0, duration=2.0)  # 10-90 Hz chirp
+x_tone, _, _ = make_tone(40.0, A=1.0, duration=2.0)          # 40 Hz tone
+x = x_chirp + x_tone                                         # combined signal
+
+wvd, t_wvd, f_wvd = wigner_ville(x, FS, n_fft=512)          # WVD of combined
+# Cross-term expected at midpoint: f_c(t) = (f_chirp(t) + 40) / 2
+```
+
+**Experiment C - Real vs analytic signal.** A 30 Hz tone analyzed as real-valued (DC ghost) vs analytic (clean):
+
+```python
+x, _, t = make_tone(30.0, A=1.0, duration=2.0)              # 30 Hz tone
+
+# --- WVD of REAL signal (manual, bypasses analytic conversion) ---
+N = len(x)
+wvd_real = np.zeros((512, N))                                # allocate
+for n in range(N):                                           # for each time sample
+    L = min(n, N - 1 - n, 512 // 2 - 1)                     # max lag
+    r = np.zeros(512, dtype=float)                           # autocorrelation vector
+    r[0] = x[n] * x[n]                                      # lag 0
+    for m in range(1, L + 1):                                # lags 1..L
+        val = x[n + m] * x[n - m]                            # instantaneous autocorrelation
+        r[m] = val                                           # positive lag
+        r[512 - m] = val                                     # negative lag (symmetric)
+    wvd_real[:, n] = 2.0 * np.real(np.fft.fft(r))           # DFT over lag
+
+# --- WVD of ANALYTIC signal (standard function) ---
+wvd_analytic, t_wvd, f_wvd = wigner_ville(x, FS, n_fft=512)
+```
+
+**WVD implementation** (`src/common/wvd.py`). The `wigner_ville` function converts to the analytic signal (Hilbert transform, Equation (A.70)), interpolates by 2 (to prevent frequency aliasing from the double-lag step), computes the instantaneous autocorrelation (Equation (A.60)) at each time sample, and takes the DFT over lag (Equation (A.61)):
+
+```python
+import numpy as np
+from scipy.signal import hilbert, resample
+
+def wigner_ville(x, fs, n_fft=None):
+    """Compute the discrete WVD using analytic signal + interpolation-by-2."""
+    z = hilbert(x)                                         # analytic signal (remove -f)
+    N = len(z)
+    if n_fft is None:
+        n_fft = N
+
+    z_interp = resample(z, 2 * N)                          # interpolate by 2 (prevent aliasing)
+    wvd_interp = np.zeros((n_fft, 2 * N))                  # allocate WVD matrix
+
+    for n in range(2 * N):                                 # for each time sample
+        L = min(n, 2 * N - 1 - n, n_fft // 2 - 1)         # max lag
+        r = np.zeros(n_fft, dtype=complex)                 # autocorrelation vector
+        r[0] = z_interp[n] * np.conj(z_interp[n])          # lag 0
+        for m in range(1, L + 1):                          # lags 1..L
+            val = z_interp[n + m] * np.conj(z_interp[n - m])  # IAF (Eq. A.60)
+            r[m] = val                                     # positive lag
+            r[n_fft - m] = np.conj(val)                    # negative lag (Hermitian)
+        wvd_interp[:, n] = 2.0 * np.real(np.fft.fft(r))   # DFT over lag (Eq. A.61)
+
+    wvd_dec = wvd_interp[:, ::2]                           # decimate back to original rate
+    freqs = np.linspace(0, fs / 2, n_fft // 2)             # frequency axis
+    t = np.arange(N) / fs                                  # time axis
+    return wvd_dec[:n_fft // 2, :], t, freqs
+```
+
+Full source: `src/lab7_wvd/lab7.py`, `src/common/wvd.py`.
+
+### Parameters
+
+**Table B.25 - Lab 7 parameters**
+
+| Parameter | Experiment A | Experiment B | Experiment C |
+| --- | --- | --- | --- |
+| $f_s$ (Hz) | 250 | 250 | 250 |
+| Duration (s) | 2.0 | 2.0 | 2.0 |
+| $N$ (samples) | 500 | 500 | 500 |
+| $N_f$ (FFT bins) | 512 | 512 | 512 |
+| Chirp $f_0$ (Hz) | 10 | 10 | - |
+| Chirp $f_{\text{end}}$ (Hz) | 80 | 90 | - |
+| Tone (Hz) | - | 40 | 30 |
+| STFT window | Hann, 64 (0.256 s) | Hann, 64 (0.256 s) | - |
+| Analytic signal | Yes (automatic) | Yes (automatic) | Real vs analytic |
+
+### Results
+
+**Experiment A - Single chirp.**
+
+Figure B.39 shows the chirp in the time domain.
+
+![Figure B.39 - Linear chirp 10-80 Hz, time domain](../results/graphs/lab7/figure_B_39.png)
+
+Figure B.40 compares the STFT (left) and WVD (right) in dual-stack (linear top, dB bottom). The STFT shows a thick, blurred diagonal - the Hann window ($M = 64$, 0.256 s) smears the trajectory by $\Delta f = 2 \times 250/64 = 7.8$ Hz. The WVD shows a razor-sharp diagonal tracking the instantaneous frequency $f_{\text{inst}}(t) = 10 + 35t$ Hz exactly. The dB panels reveal the contrast: the STFT has horizontal striping from the window's side lobes; the WVD has only minor ripples near the edges.
+
+![Figure B.40 - STFT vs WVD on single chirp (dual-stack)](../results/graphs/lab7/figure_B_40.png)
+
+**Experiment B - Cross-terms.**
+
+Figure B.41 shows the chirp + tone signal in the time domain.
+
+![Figure B.41 - Chirp (10-90 Hz) + tone (40 Hz), time domain](../results/graphs/lab7/figure_B_41.png)
+
+Figure B.42 compares the STFT and WVD. The STFT (left) shows a clean superposition: blurred diagonal (chirp) and horizontal line (tone) with no interference. The WVD (right) shows both components sharply, but with a strong oscillating cross-term at the midpoint frequency:
+
+- **Location:** $f_c(t) = (f_{\text{chirp}}(t) + 40) / 2 = 25 + 20t$ Hz - exactly halfway between chirp and tone
+- **Oscillation:** increases in frequency as the chirp moves away from the tone, matching $|f_{\text{chirp}}(t) - 40|$ Hz
+
+The dB panel makes the cross-term's oscillatory structure especially visible - concentric ripples emanating from the midpoint trajectory.
+
+![Figure B.42 - STFT (clean) vs WVD (cross-terms) for chirp + tone](../results/graphs/lab7/figure_B_42.png)
+
+**Experiment C - Real vs analytic signal.**
+
+Figure B.43 shows the 30 Hz tone in the time domain.
+
+![Figure B.43 - 30 Hz tone, time domain](../results/graphs/lab7/figure_B_43.png)
+
+Figure B.44 compares the WVD of the real signal (left) vs the analytic signal (right). The real-signal WVD is corrupted by heavy interference across the entire plane - the DC self-ghost from cross-terms between $+30$ Hz and $-30$ Hz, oscillating at $2 \times 30 = 60$ Hz. The analytic-signal WVD shows a clean horizontal line at 30 Hz with no ghost.
+
+![Figure B.44 - Real signal WVD (DC ghost) vs analytic signal WVD (clean)](../results/graphs/lab7/figure_B_44.png)
+
+### Verification
+
+**Table B.26 - Lab 7 verification**
+
+| Prediction (Volume A) | Measured | Confirmed? |
+| --- | --- | --- |
+| WVD of chirp = sharp peak along $f_{\text{inst}}$ (Eq. A.65-A.66) | Razor-sharp diagonal, no blur | Yes |
+| Cross-term at midpoint $(f_1+f_2)/2$ (Eq. A.69) | Midpoint trajectory $25 + 20t$ Hz | Yes |
+| Cross-term oscillates at $\|f_1 - f_2\|$ (Eq. A.69) | Oscillation frequency increases with distance | Yes |
+| Real signal: DC ghost at 0 Hz, oscillating at $2f_0$ (A.7.5) | Heavy 0 Hz band oscillating at 60 Hz | Yes |
+| Analytic signal removes DC ghost (Eq. A.70) | Clean 30 Hz line, ghost eliminated | Yes |
+
+### Conclusion
+
+The WVD achieves sub-Heisenberg resolution for a single chirp - the diagonal is razor-sharp where the STFT is blurred. But the moment a second component is added, cross-terms corrupt the representation with oscillating artifacts at the midpoint frequency. The DC self-ghost from real-valued signals is removed by the analytic signal (Hilbert transform), confirming Section A.7.5.
+
+The cross-terms cannot be removed by the analytic signal - they arise from the interaction between two genuine positive-frequency components. To suppress them while preserving the WVD's sharpness, independent smoothing is needed. That is the subject of Lab 8.
+## B.8 - Lab 8: The SPWVD and its Tradeoffs  *(↔ A.8)*
+
+### Introduction
+
+Lab 7 showed that the WVD achieves razor-sharp resolution but is unusable for multi-component signals due to cross-terms. The Smoothed Pseudo Wigner-Ville Distribution (Section A.8) addresses this with two independent smoothing windows: a lag window $h[m]$ that smooths in frequency (Equation (A.71)), and a time window $g[p]$ that smooths in time (Equation (A.72)). The PWVD uses only $h$; the SPWVD uses both.
+
+This lab verifies:
+
+- The PWVD suppresses frequency-oscillating ghosts but not time-oscillating ones (A.8.2).
+- The SPWVD suppresses both types of ghosts.
+- The two windows $h$ and $g$ act as independent knobs, allowing time and frequency resolution to be traded separately (A.8.4).
+- The duality from Table A.12: PWVD works for impulse-type ghosts, SPWVD needed for tone-type ghosts.
+
+### Setup
+
+**Duration:** 2.0 s (same as Lab 7 - WVD is O(N²)).
+
+**Experiment A - WVD → PWVD → SPWVD progression.** Same chirp + tone signal from Lab 7 Experiment B (chirp 10-90 Hz, tone at 40 Hz). Cross-terms are time-oscillating (components separated in frequency, per Table A.12).
+
+```python
+from src.common import make_chirp, make_tone, wigner_ville, smoothed_pseudo_wigner_ville
+from src.common.windows import hann
+
+x_chirp, _, t = make_chirp(10.0, 40.0, A=1.0, duration=2.0)  # 10-90 Hz chirp
+x_tone, _, _ = make_tone(40.0, A=1.0, duration=2.0)          # 40 Hz tone
+x = x_chirp + x_tone                                         # combined signal
+
+# 1. Raw WVD
+wvd_raw, t_wvd, f_wvd = wigner_ville(x, FS, n_fft=512)
+
+# 2. PWVD (lag window only, no time smoothing)
+h_lag = hann(51)                                              # lag window: Hann 51 (0.204 s)
+g_none = np.array([1.0])                                     # no time smoothing
+pwvd, _, _ = smoothed_pseudo_wigner_ville(x, FS, h=h_lag, g=g_none, n_fft=512)
+
+# 3. SPWVD (both windows)
+g_time = hann(15)                                            # time window: Hann 15 (0.060 s)
+spwvd, t_sp, f_sp = smoothed_pseudo_wigner_ville(x, FS, h=h_lag, g=g_time, n_fft=512)
+```
+
+**Experiment B - Two-knob sweep.** Same signal, two extreme SPWVD tunings:
+
+```python
+# Case 1: strong frequency smoothing, weak time
+h1 = hann(101)                                               # long lag (0.404 s)
+g1 = hann(5)                                                 # short time (0.020 s)
+spwvd1, _, _ = smoothed_pseudo_wigner_ville(x, FS, h=h1, g=g1, n_fft=512)
+
+# Case 2: weak frequency smoothing, strong time
+h2 = hann(25)                                                # short lag (0.100 s)
+g2 = hann(31)                                                # long time (0.124 s)
+spwvd2, _, _ = smoothed_pseudo_wigner_ville(x, FS, h=h2, g=g2, n_fft=512)
+```
+
+**Experiment C - Frequency-oscillating ghosts (two impulses).** Two broadband pulses separated in time produce frequency-oscillating cross-terms (the other half of the duality from Table A.12). The PWVD (lag window only) should suppress these - demonstrating that the PWVD IS useful when the ghosts oscillate in the axis it smooths.
+
+```python
+from src.common import make_transient
+
+# Two impulses at t = 0.5 s and t = 1.5 s (Δt = 1.0 s)
+x1, _, t = make_transient(int(0.5*FS), int(0.02*FS),        # impulse 1 (baseband)
+                           f0=0.0, A=1.0, duration=2.0)
+x2, _, _ = make_transient(int(1.5*FS), int(0.02*FS),        # impulse 2 (baseband)
+                           f0=0.0, A=1.0, duration=2.0)
+x = x1 + x2                                                 # two impulses
+
+# Cross-term: frequency-oscillating at midpoint t_c = 1.0 s
+wvd_raw, _, _ = wigner_ville(x, FS, n_fft=512)              # raw WVD: ghost present
+pwvd, _, _ = smoothed_pseudo_wigner_ville(x, FS, h=h_lag, g=g_none, n_fft=512)  # PWVD: ghost gone
+spwvd, _, _ = smoothed_pseudo_wigner_ville(x, FS, h=h_lag, g=g_time, n_fft=512)  # SPWVD: also gone
+```
+
+Full source: `src/lab8_spwvd/lab8.py`.
+
+### Parameters
+
+**Table B.27 - Lab 8 parameters**
+
+| Parameter | Experiment A | Experiment B | Experiment C |
+| --- | --- | --- | --- |
+| $f_s$ (Hz) | 250 | 250 | 250 |
+| Duration (s) | 2.0 | 2.0 | 2.0 |
+| Signal | Chirp + tone (Lab 7) | Chirp + tone (Lab 7) | Two impulses |
+| Ghost type | Time-oscillating | Time-oscillating | Frequency-oscillating |
+| $h$ (lag window) | Hann 51 (0.204 s) | 101/25 (0.404/0.100 s) | Hann 51 (0.204 s) |
+| $g$ (time window) | None / Hann 15 (0.060 s) | 5/31 (0.020/0.124 s) | None / Hann 15 (0.060 s) |
+
+### Results
+
+**Experiment A - Progression.**
+
+Figure B.45 shows the chirp + tone signal in the time domain (same as Lab 7 Figure B.41).
+
+![Figure B.45 - Chirp + tone time domain](../results/graphs/lab8/figure_B_45.png)
+
+Figure B.46 shows the WVD → PWVD → SPWVD progression in dual-stack (linear left, dB right):
+
+![Figure B.46 - WVD → PWVD → SPWVD progression](../results/graphs/lab8/figure_B_46.png)
+
+- **Raw WVD (top):** sharp chirp diagonal and tone horizontal line, but the midpoint cross-term dominates - oscillating concentric ripples between the two components.
+- **PWVD (middle):** the lag window $h$ = Hann 51 (0.204 s) smooths the frequency axis. The frequency structure is slightly blurred, but the **time-oscillating cross-term survives** - the oscillations along the time axis are still clearly visible. This confirms Section A.8.2: the PWVD smooths only in frequency, so time-oscillating ghosts pass through unaffected.
+- **SPWVD (bottom):** the time window $g$ = Hann 15 (0.060 s) smooths the time axis. The time-oscillating cross-term is **suppressed**. The chirp and tone remain sharp and clearly separated. The SPWVD achieves what neither the raw WVD nor the PWVD could: sharp components without cross-term corruption.
+
+**Experiment B - Two-knob sweep.**
+
+Figure B.47 shows two extreme SPWVD tunings:
+
+![Figure B.47 - SPWVD two-knob sweep](../results/graphs/lab8/figure_B_47.png)
+
+- **Case 1 (h=101, g=5; top):** long lag window provides very high frequency resolution - the 40 Hz tone is a thin line. But the short time window (0.020 s) fails the minimum smoothing rule (Equation (A.73): $T_g \geq 1/\Delta f$). The difference frequency between chirp and tone ranges from 10 to 50 Hz, requiring $T_g \geq 0.10$ s. Since 0.020 s < 0.10 s, time-oscillating cross-terms survive.
+- **Case 2 (h=25, g=31; bottom):** long time window (0.124 s > 0.10 s) satisfies the minimum smoothing rule - time-oscillating cross-terms are **fully suppressed**. But the short lag window blurs the frequency axis - the tone is smeared into a thick band.
+
+This demonstrates the independent control: $h$ affects only frequency resolution, $g$ affects only time resolution. Unlike the STFT where one window controls both.
+
+**Experiment C - Frequency-oscillating ghosts.**
+
+Figure B.48 shows two broadband impulses in the time domain at t = 0.5 s and t = 1.5 s.
+
+![Figure B.48 - Two impulses time domain](../results/graphs/lab8/figure_B_48.png)
+
+Figure B.49 shows the WVD → PWVD → SPWVD progression for the two-impulse signal:
+
+![Figure B.49 - Two impulses: frequency-oscillating ghosts](../results/graphs/lab8/figure_B_49.png)
+
+- **Raw WVD (top):** two vertical stripes (the impulses) with a frequency-oscillating cross-term at the midpoint t = 1.0 s - visible as ripples oscillating across the frequency axis in the dB panel.
+- **PWVD (middle):** the lag window $h$ smooths in frequency - the **frequency-oscillating ghost is suppressed**. This is the half of the duality that Experiment A couldn't show: the PWVD DOES work when the ghosts oscillate in the axis it smooths.
+- **SPWVD (bottom):** both windows - same clean result as PWVD (the time window has nothing additional to suppress here since there are no time-oscillating ghosts).
+
+This completes the duality from Table A.12:
+
+**Table B.28 - Cross-term duality verified**
+
+| Signal | Ghost type | PWVD (h only) | SPWVD (h + g) |
+| --- | --- | --- | --- |
+| Chirp + tone (Exp A) | Time-oscillating | Fails - ghost survives | Succeeds - ghost suppressed |
+| Two impulses (Exp C) | Frequency-oscillating | Succeeds - ghost suppressed | Succeeds - ghost suppressed |
+
+### Verification
+
+**Table B.29 - Lab 8 verification**
+
+| Prediction (Volume A) | Measured | Confirmed? |
+| --- | --- | --- |
+| PWVD fails on time-oscillating ghosts (A.8.2) | Chirp+tone cross-term survives PWVD (Fig. B.46 middle) | Yes |
+| PWVD succeeds on frequency-oscillating ghosts (A.8.1) | Two-impulse cross-term suppressed by PWVD (Fig. B.49 middle) | Yes |
+| SPWVD suppresses both ghost types (A.8.3) | Both signals clean in SPWVD (Figs. B.46, B.49 bottom) | Yes |
+| Minimum smoothing rule $T_g \geq 1/\Delta f$ (Eq. A.73) | Case 1 (g=5, 0.020 s) fails; Case 2 (g=31, 0.124 s) succeeds | Yes |
+| $h$ and $g$ are independent knobs (A.8.4) | Case 1 vs Case 2 show opposite resolution tradeoffs | Yes |
+
+### Conclusion
+
+The SPWVD is the usable form of the WVD. It suppresses both time-oscillating and frequency-oscillating cross-terms through two independent smoothing windows, while preserving sharper resolution than the STFT. The two knobs - lag window $h$ (frequency axis) and time window $g$ (time axis) - give explicit, independent control over the resolution-ghost tradeoff.
+
+The duality is confirmed: the PWVD alone is sufficient when ghosts oscillate in frequency (impulse-type signals) but fails when they oscillate in time (tone-type signals). The SPWVD handles both, at the cost of choosing window lengths that satisfy the minimum smoothing rule (Equation (A.73)).
+
+This is the final tool in the Volume B progression: DFT → windowed DFT → STFT → autocorrelation → WVD → SPWVD. Volume C applies the SPWVD to a selected clean segment of the neonatal EEG recording, with the window parameters tuned for the delta-band burst structure identified in C.3.
 
 # Appendix B1 - The Symmetric ($M-1$) Window Convention
-
-> This appendix derives the Hann window spectrum using the symmetric convention ($M-1$) and proves that both conventions converge as $M \to \infty$. Lab 3 uses the periodic convention ($M$) for compatibility with scipy and the geometric-series factorization. This appendix shows the alternative path - where the algebra is simpler but the shared-numerator trick does not apply.
->
 ## AB1.1 The Symmetric Cosine-Sum
 
 In the symmetric convention, the cosine-sum formula divides by $M-1$:
@@ -1615,7 +1946,6 @@ $$
 \epsilon = \frac{M}{M-1} - 1 = \frac{1}{M-1} \tag{AB1.10}
 $$
 
-
 **Table AB1.1 - M vs M-1 convergence**
 
 | $M$ | $\epsilon$ | Edge value difference | Peak side-lobe difference |
@@ -1629,7 +1959,6 @@ $$
 At $M = 256$ (the EEG-typical window length), the difference is 0.11 dB - invisible in any practical measurement. At $M = 1024$, it drops to 0.03 dB.
 
 ## AB1.4 Summary
-
 
 **Table AB1.2 - Convention comparison**
 
@@ -1726,6 +2055,6 @@ Figure AB2.2 shows the CV values as a bar chart, with the CV = 1.0 reference lin
 
 CV measures **spectral concentration**, not signal presence. It distinguishes narrowband features (energy in a few bins, CV $\gg$ 1) from broadband backgrounds (energy spread across many bins, CV $\approx$ 1). The scale spans two orders of magnitude: from noise (1.0) to a single tone (86.6).
 
-The chirp (CV = 2.3) reveals the limitation: it is a deterministic signal, clearly not noise, but its energy is spread across a 20 Hz sweep rather than concentrated in a few bins. CV cannot distinguish a chirp from slightly non-Gaussian noise. This means CV answers the question "is there a **narrowband oscillation** here?" — not the broader question "is there any signal here?" For EEG, this is the right question: the clinical features of interest (alpha rhythms, sleep spindles, delta oscillations) are narrowband, and CV detects their presence or absence reliably.
+The chirp (CV = 2.3) reveals the limitation: it is a deterministic signal, clearly not noise, but its energy is spread across a 20 Hz sweep rather than concentrated in a few bins. CV cannot distinguish a chirp from slightly non-Gaussian noise. This means CV answers the question "is there a **narrowband oscillation** here?" - not the broader question "is there any signal here?" For EEG, this is the right question: the clinical features of interest (alpha rhythms, sleep spindles, delta oscillations) are narrowband, and CV detects their presence or absence reliably.
 
-This table provides the reference for Volume C, Section C.4: when CV = 1.11 is measured on the alpha band of real EEG, it is closest to noise (1.01) and far from any narrowband archetype (tone: 86.6, transient: 12.5, tone+noise: 10.1). The alpha band contains no narrowband oscillation — consistent with an immature neonatal cortex that has not yet developed alpha rhythms.
+This table provides the reference for Volume C, Section C.4: when CV = 1.11 is measured on the alpha band of real EEG, it is closest to noise (1.01) and far from any narrowband archetype (tone: 86.6, transient: 12.5, tone+noise: 10.1). The alpha band contains no narrowband oscillation - consistent with an immature neonatal cortex that has not yet developed alpha rhythms.

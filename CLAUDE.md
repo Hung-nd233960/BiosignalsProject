@@ -39,59 +39,51 @@ A unified slide deck accompanies all three volumes.
 - `environment.yml` — conda environment definition. Single source of truth for dependencies.
 - `template/reference.docx` — Word template for pandoc: Roboto body, Consolas code, margins (top 2cm, left 2cm, right 1cm, bottom 1cm), page numbers bottom center.
 - `docs/METHODOLOGY.md` — records every rule in this file, why it was added, and what problem it solved. **When adding or changing a rule in CLAUDE.md, update METHODOLOGY.md with the reason.**
+- `docs/DOCUMENT_STANDARD.md` — LaTeX/PDF formatting standard: page layout, figure handling (no floats), equation tags, numbering, build pipeline, and known issues. **All LaTeX output must conform to this file.**
 
 ---
 
 ## Building Documents
 
-**Touch up markdown before converting** (removes horizontal rules, replaces fancy dashes):
+**The primary output format is LaTeX** (for Overleaf). Word (.docx) is secondary.
+
+**Step 1: Touch up markdown** (removes horizontal rules, blockquotes, fancy dashes):
 
 ```bash
 python build_docs/prettier.py docs/volume_B.md
 ```
 
-**Markdown to Word (.docx)** via pandoc with the reference template:
+**Step 2a: Markdown to LaTeX** (primary) -- with embedded images for Overleaf:
 
 ```bash
-cd docs && ~/miniforge3/bin/pandoc volume_B.md \
-    -o ../output/volume_B.docx \
+~/miniforge3/bin/pandoc docs/volume_B.md \
+    -o output/volume_B.tex \
+    --from=markdown+tex_math_dollars+pipe_tables --standalone \
+    -V geometry:"top=2cm, bottom=2cm, left=2cm, right=1cm" \
+    --extract-media=output/media_B \
+    --resource-path=docs
+
+# Fix image paths and remove floating figures (prevents double-numbering)
+python3 build_docs/fix_tex.py output/volume_B.tex
+```
+
+Upload to Overleaf: `volume_B.tex` + the `media_B/` folder (side by side). Images are extracted as hashed PNGs -- no external paths needed. The `fix_tex.py` script strips the `output/` prefix from media paths and replaces `\begin{figure}` floats with inline `\begin{center}` blocks so our manual "Figure B.X" labels don't conflict with LaTeX's auto-numbering.
+
+**Step 2b: Markdown to Word (.docx)** (secondary):
+
+```bash
+~/miniforge3/bin/pandoc docs/volume_B.md \
+    -o output/volume_B.docx \
     --from=markdown+tex_math_dollars+pipe_tables \
     --mathml \
-    --reference-doc=../template/reference.docx
+    --reference-doc=template/reference.docx \
+    --resource-path=docs
 ```
 
-Or use the build script: `bash build_docs/build_docx.sh`
-
-**Markdown to LaTeX/PDF** via pandoc + tectonic:
+**Step 2c: LaTeX to PDF** locally via tectonic:
 
 ```bash
-cd docs && ~/miniforge3/bin/pandoc volume_B.md \
-    -o ../output/volume_B.tex \
-    --from=markdown+tex_math_dollars --standalone \
-    -V geometry:margin=2cm
-cd ../output && ~/miniforge3/bin/tectonic volume_B.tex
-```
-
-**Slides** via Marp (markdown to HTML):
-
-```bash
-export PATH=~/miniforge3/bin:$PATH
-cd docs && marp slides.md -o ../output/slides.html --allow-local-files
-```
-
-For PDF/PPTX slides, install Chromium and use `marp slides.md -o ../output/slides.pdf`. Or print-to-PDF from the HTML in a browser.
-
----
-
-## Code Standards
-
-- **Show your tools.** Every code block must explicitly display the libraries/imports being used. If a calculation is built from scratch (no library call), show the implementation explicitly. When using external functions (e.g. `scipy.stats.linregress`, `scipy.signal.argrelextrema`), state briefly what they do and what method they use — not just "fit a line" or "find maxima."
-- **Comment every line.** Code explanation must include inline comments stating what each line does.
-- **Compact and modular.** Wrap reusable operations in functions. Each function does one thing. Code should be easy to copy into another notebook or script and run.
-- **Reproducibility.** Any signal involving randomness (noise, stochastic processes) must use a fixed random seed. State the seed explicitly.
-- **Import from `src/common/`.** Constants (`FS`, `DURATION`, `SEED`, `DPI`), signal generators, window functions, and plotting utilities all live in `src/common/`. Never hardcode these values in lab code. See `src/README.md` for the full contributor guide.
-- **Every figure must have its code shown in the report.** The instructor does not go to GitHub. Before each figure, show the code that produces it — the function call, the parameters, the data flow. Pattern: **code block → figure → interpretation.** No figure should appear without the reader seeing exactly how it was generated.
-- **Numbers that drive decisions must be traceable to code.** If a number determines the analysis direction (e.g. "91.8% delta" drives the triage, "1/f slope = -3.18" determines signal vs. noise), the code that computes it must appear immediately before, or the raw output must be shown. Descriptive statistics (amplitude range, std) are fine as prose. The critical chain is: **code → number → decision.**
+cd output && ~/miniforge3/bin/tectonic volume_B.tex
 
 ---
 

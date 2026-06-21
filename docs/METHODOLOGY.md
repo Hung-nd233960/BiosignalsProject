@@ -114,6 +114,12 @@ The build pipeline was set up mid-project when we needed to deliver formatted do
 
 **METHODOLOGY.md tracks every rule change.** When a rule is added or changed in CLAUDE.md, the reason is recorded in this file. This was added to prevent the standards from becoming an opaque list of commands - the "why" behind each rule is preserved so future contributors (and future sessions) understand the reasoning, not just the conclusion.
 
+## Build Pipeline
+
+**LaTeX is the primary output format.** The project started with Word (.docx) via pandoc + MathML. However, pandoc's MathML renderer choked on complex equations with `\tag{}` inside `\text{}` blocks, producing 13+ warnings on Volume A alone. LaTeX handles `\tag{}` natively with no issues. Additionally, Overleaf provides collaborative editing, proper typesetting, and PDF export without local TeX installation. The `--extract-media` flag embeds images as hashed PNGs in a `media_X/` folder, making Overleaf upload simple: one .tex file + one image folder.
+
+**Word remains secondary** for quick previews and instructor compatibility (some prefer .docx). The `--resource-path=docs` flag resolves relative image paths from the markdown's perspective.
+
 ## What We Would Do Differently
 
 - **Number tables from the start.** Retroactive numbering of 15 tables was painful and error-prone.

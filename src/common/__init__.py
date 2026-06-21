@@ -16,3 +16,4 @@ from .plotting import (
     save_figure,
 )
 from .eeg import load_eeg, compute_band_power, get_channel_data
+from .wvd import wigner_ville, smoothed_pseudo_wigner_ville

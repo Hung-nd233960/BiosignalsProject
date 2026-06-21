@@ -331,6 +331,7 @@ All Volume B rules apply (code format, graphs, numbering, dual-stack, six-sectio
 - **Figures** are numbered sequentially per volume: `Figure A.1`, `Figure A.2`, … / `Figure B.1`, … / `Figure C.1`, …
 - **Tables** are numbered sequentially per volume: `Table A.1`, `Table A.2`, … / `Table B.1`, … / `Table C.1`, …
 - All equations, figures, and tables are **referenced by number** in the text — never by position ("above", "below", "the following").
+- **Primary output format is LaTeX** (for Overleaf). Word (.docx) is secondary. See CLAUDE.md "Building Documents" for the full pipeline.
 
 ---
 

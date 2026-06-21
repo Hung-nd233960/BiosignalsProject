@@ -1,4 +1,28 @@
-# Volume A - Theoretical Background
+# From the DFT to the SPWVD: Time-Frequency Analysis Applied to Neonatal EEG
+
+## Volume A - Theoretical Background
+
+**Author:** Nguyen Duc Hung - 20233960
+
+### What this report is about
+
+This report studies the fundamentals of digital signal processing in the frequency and time-frequency domains, starting from the Discrete Fourier Transform (DFT) and building through the Short-Time Fourier Transform (STFT), autocorrelation, and the Wigner-Ville Distribution (WVD) to the Smoothed Pseudo Wigner-Ville Distribution (SPWVD). The theory is developed in Volume A, validated on model signals in Volume B (8 labs + appendices), and applied to a real neonatal EEG recording in Volume C.
+
+### What this volume covers
+
+Volume A develops the theoretical foundation used throughout the report:
+
+- **A.1** Signal theory: sampling, discrete frequency, Nyquist, signal classification, energy/power, the signal as a vector
+- **A.2** The DFT: bins, resolution, zero-padding, Parseval's theorem
+- **A.3** Windowing: leakage, the cosine-sum family, the resolution limit, the M vs M-1 convention
+- **A.4** Statistics: bin distributions under noise, the noise floor, spectral detection, Welch's method
+- **A.5** The STFT: the spectrogram, the Heisenberg uncertainty principle, overlap and COLA
+- **A.6** Autocorrelation: periodicity detection, Wiener-Khinchin, phase-blindness, cross-correlation
+- **A.7** The WVD: instantaneous autocorrelation, chirp sharpness, cross-terms, the analytic signal
+- **A.8** The PWVD and SPWVD: lag window, time window, the two-knob tradeoff, Cohen's class
+- **Appendix A** Signal taxonomy: the six archetypes and their behaviour under each transform
+
+All formulas are discrete-time and discrete-frequency. The continuous-time form is mentioned for motivation where necessary, but the working formula is always the discrete version.
 
 ## A.1 Signal Theory
 
@@ -125,7 +149,7 @@ These definitions connect forward:
 A length-$N$ discrete signal $x[n]$ can be written as a vector:
 
 $$
-\mathbf{x} = (x[0], \; x[1], \; \ldots, \; x[N-1]) \in \mathbb{R}^N \tag{A.7}
+\mathbf{x} = (x[0], \; x[1], \; \ldots, \; x[N-1]) \in \mathbb{R}^N \qquad \text{(A.7)}
 $$
 
 This is not a metaphor. The signal literally is a point in $N$-dimensional space. Each sample $x[n]$ is one coordinate.
@@ -203,7 +227,7 @@ The DTFT $X(\omega)$ is a continuous curve. The DFT samples this curve at $N$ po
 The distance between adjacent bins on the $\omega$-axis is:
 
 $$
-\Delta\omega = \frac{2\pi}{N} \quad \text{(radians per sample)} \tag{A.14}
+\Delta\omega = \frac{2\pi}{N} \tag{A.14}
 $$
 
 **Bin spacing in physical frequency:**
@@ -211,13 +235,13 @@ $$
 To convert to Hz, recall that $\omega = 2\pi f / f_s$, where $f$ is the physical frequency in Hz and $f_s$ is the sampling rate. Applying this to Equation (A.14), the spacing between adjacent bins in Hz is:
 
 $$
-\Delta f = \frac{f_s}{N} \quad \text{(Hz)} \tag{A.15}
+\Delta f = \frac{f_s}{N} \tag{A.15}
 $$
 
 Equation (A.15) is one of the most important numbers in spectral analysis. It depends on **two quantities only**: the sampling rate $f_s$ and the number of samples $N$. Since the signal duration is $T = N / f_s$, we can equivalently write Equation (A.15) as:
 
 $$
-\Delta f = \frac{1}{T} \quad \text{(Hz)} \tag{A.16}
+\Delta f = \frac{1}{T} \tag{A.16}
 $$
 
 The bin spacing is the reciprocal of the observation time. A 1-second signal gives 1 Hz bin spacing. A 20-second signal gives 0.05 Hz bin spacing. This is not a design choice - it is a consequence of sampling the DTFT at $N$ equally spaced points.
@@ -225,7 +249,7 @@ The bin spacing is the reciprocal of the observation time. A 1-second signal giv
 **Which physical frequency does bin $k$ represent?**
 
 $$
-f_k = k \cdot \Delta f = \frac{k \cdot f_s}{N} \quad \text{(Hz)} \tag{A.17}
+f_k = k \cdot \Delta f = \frac{k \cdot f_s}{N} \tag{A.17}
 $$
 
 For $k = 0$: the DC component (zero frequency).
@@ -241,7 +265,7 @@ These two concepts are routinely conflated. They are not the same thing.
 **Frequency resolution** is the ability to distinguish two nearby frequency components in the signal. It is determined by the **signal duration** $T = N / f_s$, and its fundamental limit is given by Equation (A.18):
 
 $$
-\Delta f_{\min} = \frac{1}{T} = \frac{f_s}{N} \quad \text{(Hz)} \tag{A.18}
+\Delta f_{\min} = \frac{1}{T} = \frac{f_s}{N} \tag{A.18}
 $$
 
 Two tones separated by less than $\Delta f_{\min}$ cannot be resolved - not because we lack bins, but because the DTFT itself merges them into a single lobe. The underlying continuous spectrum does not contain two distinct peaks.
@@ -677,7 +701,7 @@ Equation (A.44) is the power at time step $m$ and frequency bin $k$. It is the o
 The physical frequency and time of each cell are:
 
 $$
-f_k = \frac{k \cdot f_s}{M} \quad \text{(Hz)}, \qquad t_m = \frac{m \cdot H}{f_s} \quad \text{(s)} \tag{A.45}
+f_k = \frac{k \cdot f_s}{M} \quad \text{(Hz)}, \qquad t_m = \frac{m \cdot H}{f_s} \tag{A.45}
 $$
 
 The connection to Welch is now explicit. Welch computes $S[m, k]$ for all $m$ and $k$, then averages over $m$: $\bar{S}[k] = \frac{1}{L}\sum_m S[m,k]$. The STFT keeps the $m$ axis. Welch answers "what frequencies are present on average?"; the STFT answers "what frequencies are present, and when?"
@@ -691,7 +715,7 @@ The window length $M$ controls both time resolution and frequency resolution, bu
 **Time resolution.** The STFT localizes a signal event to the window that contains it. The finest time localization is the window duration:
 
 $$
-\Delta t = \frac{M}{f_s} \quad \text{(s)} \tag{A.46}
+\Delta t = \frac{M}{f_s} \tag{A.46}
 $$
 
 A short window (small $M$) gives fine time resolution: a 1-second burst of alpha rhythm lands in one or two columns. A long window (large $M$) smears the burst across a single column that also contains whatever came before and after.
@@ -699,7 +723,7 @@ A short window (small $M$) gives fine time resolution: a 1-second burst of alpha
 **Frequency resolution.** Within each window, the DFT resolves frequencies to (from Equation (A.30)):
 
 $$
-\Delta f = \beta \cdot \frac{f_s}{M} \quad \text{(Hz)} \tag{A.47}
+\Delta f = \beta \cdot \frac{f_s}{M} \tag{A.47}
 $$
 
 A long window (large $M$) gives fine frequency resolution: a 10 Hz tone and a 10.5 Hz tone appear as separate peaks. A short window (small $M$) merges them into one lobe.
@@ -772,7 +796,7 @@ where the sum runs over all segment indices $m$ for which the sample falls withi
 **Example: Hann window with 50% overlap ($H = M/2$).** Each sample appears in exactly two segments. In one segment, it sits at position $p$; in the adjacent segment, it sits at position $p + M/2$. The Hann window satisfies:
 
 $$
-w_{\text{Hann}}[p] + w_{\text{Hann}}[p + M/2] = 1 \quad \text{for all } p \tag{A.51}
+w_{\text{Hann}}[p] + w_{\text{Hann}}[p + M/2] = 1 \tag{A.51}
 $$
 
 Equation (A.51) states that the two overlapping Hann windows sum to a constant. Every sample receives the same total weight of 1, regardless of where it falls relative to segment boundaries. The tapering problem is completely eliminated: no sample is suppressed, no sample is over-represented.
@@ -782,7 +806,7 @@ Equation (A.51) states that the two overlapping Hann windows sum to a constant. 
 Equation (A.51) is a specific instance of the **Constant Overlap-Add (COLA) condition**:
 
 $$
-\sum_{m} w[n - mH] = C \quad \text{for all } n \tag{A.52}
+\sum_{m} w[n - mH] = C \qquad \text{(A.52)}
 $$
 
 where $C$ is a constant (typically normalized to 1). When COLA is satisfied:
@@ -972,7 +996,209 @@ This is the **Pearson correlation coefficient** at zero lag. It ranges from $-1$
 
 **Why this matters for EEG.** An EEG recording has multiple channels. Cross-correlation between an EEG channel (CZ) and an auxiliary channel (ECG) answers: "does the heartbeat appear in the brain signal?" If $|\rho_{xy}| \approx 0$, there is no contamination. If $|\rho_{xy}|$ is significant, the ECG is leaking into the EEG - and the cross-spectrum $S_{xy}[k]$ shows at which frequencies the leakage occurs. This is used in Volume C, Section C.4.
 
-*Next: A.7 - The Wigner-Ville Distribution. The global autocorrelation becomes instantaneous; the Wiener-Khinchin Fourier transform becomes time-indexed. The result is the sharpest possible time-frequency representation of a single-component signal - and, for multi-component signals, the cross-term problem that drives the rest of the report.*
+## A.7 The Wigner-Ville Distribution
+
+### A.7.1 Instantaneous Autocorrelation and Definition
+
+The global autocorrelation $r[l]$ (Section A.6) compares a signal with its shifted copy over the entire time record, collapsing the time index. To construct a time-varying spectrum, we need a localized measure of self-similarity: the **instantaneous autocorrelation function (IAF)**.
+
+A naive discretization would evaluate $x[n + m/2] \cdot x^*[n - m/2]$, which requires half-integer sample values when $m$ is odd. To stay on the integer sample grid, the **discrete-time IAF** uses a double-lag step:
+
+$$
+R_x[n, m] = x[n + m] \cdot x^*[n - m] \tag{A.60}
+$$
+
+where $n$ is the discrete time sample and $m$ is the lag. The **Discrete-Time Wigner-Ville Distribution (DT-WVD)** is the DFT of this sequence with respect to $m$:
+
+$$
+W_x[n, k] = 2 \sum_{m=-M}^{M} x[n + m] \, x^*[n - m] \, e^{-j \frac{4\pi k m}{N_f}} \tag{A.61}
+$$
+
+where $M$ is the maximum lag and $N_f$ is the number of frequency bins. The factor of 2 is a convention to align the energy scale.
+
+Equation (A.61) is the working formula used in all code. It is a discrete sum over lags, evaluated at each time sample $n$ - no integrals, no continuous variables.
+
+**The frequency aliasing problem.** The double-lag step $x[n+m] \cdot x^*[n-m]$ means the effective sampling interval of the autocorrelation sequence is $2\Delta t$, halving the Nyquist frequency from $f_s/2$ to $f_s/4$. To prevent aliasing, the input signal must be **interpolated by a factor of 2** before computing the WVD. In the interpolated signal (sampled at $2f_s$), the lag step restores the Nyquist limit to $f_s/2$.
+
+### A.7.2 Sharpness of the Single Chirp
+
+The principal advantage of the WVD over the STFT is its ability to bypass the Heisenberg uncertainty principle (Equation (A.49)) for single-component signals. We demonstrate this on a discrete linear chirp (analytic signal):
+
+$$
+x[n] = A \, e^{j 2\pi \left(\frac{f_0 n}{f_s} + \frac{\mu n^2}{2 f_s^2}\right)} \tag{A.62}
+$$
+
+where $f_0$ is the starting frequency and $\mu$ is the chirp rate in Hz/s. The instantaneous frequency at sample $n$ is $f_{\text{inst}}[n] = f_0 + \mu n / f_s$.
+
+**Computing the IAF.** Substituting Equation (A.62) into Equation (A.60):
+
+$$
+R_x[n, m] = x[n+m] \cdot x^*[n-m] = A^2 \, e^{j(\phi(n+m) - \phi(n-m))}
+$$
+
+Expanding the phase difference:
+
+$$
+\phi(n+m) - \phi(n-m) = \frac{2\pi f_0}{f_s}\left[(n+m) - (n-m)\right] + \frac{\pi\mu}{f_s^2}\left[(n+m)^2 - (n-m)^2\right]
+$$
+
+$$
+= \frac{4\pi f_0 m}{f_s} + \frac{4\pi\mu n m}{f_s^2} = \frac{4\pi m}{f_s}\left(f_0 + \frac{\mu n}{f_s}\right) = \frac{4\pi m}{f_s} f_{\text{inst}}[n] \tag{A.63}
+$$
+
+The IAF simplifies to a complex exponential in $m$ whose frequency depends on the instantaneous frequency at time $n$:
+
+$$
+R_x[n, m] = A^2 \, e^{j \frac{4\pi m}{f_s} f_{\text{inst}}[n]} \tag{A.64}
+$$
+
+**Computing the DT-WVD.** Substituting Equation (A.64) into Equation (A.61):
+
+$$
+W_x[n, k] = 2A^2 \sum_{m=-M}^{M} e^{j 4\pi m \left(\frac{f_{\text{inst}}[n]}{f_s} - \frac{k}{N_f}\right)} \tag{A.65}
+$$
+
+Equation (A.65) is a **Dirichlet kernel** - the same structure as the rectangular window DFT derived in Lab 3. It peaks sharply when the exponent vanishes:
+
+$$
+\frac{f_{\text{inst}}[n]}{f_s} = \frac{k}{N_f} \quad \Rightarrow \quad k = \frac{N_f \cdot f_{\text{inst}}[n]}{f_s} \tag{A.66}
+$$
+
+At this bin, the sum evaluates to $2A^2(2M+1)$. Away from it, the terms oscillate and largely cancel. The peak width is approximately $1/(2M+1)$ bins - the longer the lag range $M$, the sharper the peak. As $M \to \infty$, the peak approaches a delta function.
+
+This is the discrete equivalent of the continuous result $W_x(t,f) = A^2 \delta(f - f_{\text{inst}}(t))$: the DT-WVD of a linear chirp is a **sharp peak** that tracks the instantaneous frequency exactly, with resolution that improves with $M$ and is not bound by the STFT's uncertainty tradeoff. No integrals, no delta functions assumed - just a finite sum that produces a sharp peak.
+
+### A.7.3 The Quadratic Nature and Cross-Terms
+
+The WVD's sharpness comes from its **quadratic (bilinear) structure**: the signal is multiplied by itself. This introduces a severe complication for multi-component signals. The WVD is non-linear; superposition does not apply.
+
+Let $x[n] = x_1[n] + x_2[n]$. The IAF expands as:
+
+$$
+R_x[n, m] = R_{x_1}[n, m] + R_{x_2}[n, m] + x_1[n+m] \cdot x_2^*[n-m] + x_2[n+m] \cdot x_1^*[n-m] \tag{A.67}
+$$
+
+Taking the DFT over $m$:
+
+$$
+W_x[n, k] = W_{x_1}[n, k] + W_{x_2}[n, k] + 2\,\text{Re}\{W_{x_1 x_2}[n, k]\} \tag{A.68}
+$$
+
+The third term is the **cross-term**. For two discrete tones $x_1[n] = A_1 e^{j(2\pi f_1 n/f_s + \phi_1)}$ and $x_2[n] = A_2 e^{j(2\pi f_2 n/f_s + \phi_2)}$, the cross-term evaluates to:
+
+$$
+2\,\text{Re}\{W_{x_1 x_2}[n, k]\} = 2A_1 A_2 \cos\!\left(\frac{4\pi(f_1 - f_2)n}{f_s} + (\phi_1 - \phi_2)\right) \cdot D_k\!\left(\frac{f_1 + f_2}{2}\right) \tag{A.69}
+$$
+
+where $D_k$ denotes the Dirichlet kernel centered at the midpoint frequency $(f_1 + f_2)/2$. This defines the three fundamental properties of WVD cross-terms:
+
+1. **Midpoint location:** the cross-term peaks at $f_c = (f_1 + f_2)/2$, exactly halfway between the two components.
+2. **Temporal oscillation:** it oscillates in time with frequency $|f_1 - f_2|$ (the difference frequency).
+3. **Amplitude:** the peak amplitude is $2A_1 A_2$ - twice the product of the component amplitudes. If $A_1 = A_2 = 1$, the cross-term is twice as large as the auto-terms.
+
+For $K$ components, there are $K$ auto-terms and $K(K-1)/2$ cross-terms. The cross-terms grow quadratically and can dominate the representation.
+
+### A.7.4 Duality of Cross-Terms (Tones vs. Impulses)
+
+Cross-terms exhibit a strict duality between the time and frequency domains:
+
+**Table A.12 - Duality of WVD cross-terms**
+
+| Separation | Midpoint location | Oscillation direction | Oscillation rate |
+| --- | --- | --- | --- |
+| Two tones ($\Delta f$) | Midpoint frequency $(f_1+f_2)/2$ | Time axis | $\Delta f$ Hz |
+| Two impulses ($\Delta t$) | Midpoint time $(t_1+t_2)/2$ | Frequency axis | $\Delta t$ s |
+
+For tones separated in frequency, the cross-term oscillates in time. For impulses separated in time, the cross-term oscillates in frequency. For a general time-frequency separation, the cross-term is centered at the joint midpoint and oscillates perpendicular to the line connecting the two components.
+
+### A.7.5 Analytic Signal (Hilbert Transform) and DC Self-Ghost
+
+A real-valued tone $x[n] = A\cos(2\pi f_0 n / f_s)$ consists of two complex exponentials at $+f_0$ and $-f_0$. The WVD treats these as two components and generates a cross-term between them:
+
+- Midpoint: $(f_0 + (-f_0))/2 = 0$ Hz (DC)
+- Oscillation: $|f_0 - (-f_0)| = 2f_0$ Hz
+
+This is the **DC self-ghost** - an oscillating artifact at 0 Hz that corrupts the low-frequency plane. In EEG, where delta-band activity (0.5-4 Hz) is clinically significant, this would be catastrophic.
+
+The solution: convert the real signal to its **analytic signal** before computing the WVD:
+
+$$
+z[n] = x[n] + j\,\mathcal{H}\{x[n]\} \tag{A.70}
+$$
+
+where $\mathcal{H}\{\cdot\}$ is the Hilbert transform. The analytic signal retains only positive frequencies, eliminating the $-f_0$ component and preventing the DC self-ghost. This step is mandatory for any practical WVD implementation.
+
+## A.8 The PWVD and the SPWVD
+
+### A.8.1 The Lag Window $h$ (Frequency Smoothing)
+
+To suppress cross-terms, the **Pseudo Wigner-Ville Distribution (PWVD)** windows the IAF in the lag domain with a symmetric window $h[m]$:
+
+$$
+PW_x[n, k] = 2 \sum_{m=-M}^{M} h[m] \, x[n+m] \, x^*[n-m] \, e^{-j \frac{4\pi k m}{N_f}} \tag{A.71}
+$$
+
+Multiplication by $h[m]$ in the lag domain is convolution in frequency. The PWVD smooths the WVD along the frequency axis, suppressing cross-terms that oscillate in the frequency direction (those from components separated in time, per Table A.12).
+
+### A.8.2 Limitation: Time-Oscillating Ghosts
+
+The PWVD performs no smoothing along the time axis. Cross-terms that oscillate in time (from components separated in frequency, per Table A.12) survive the PWVD completely intact. For EEG with simultaneous rhythms in different bands, this is a severe limitation.
+
+### A.8.3 The Time Window $g$ (Time Smoothing)
+
+The **Smoothed Pseudo Wigner-Ville Distribution (SPWVD)** adds a second window $g[p]$ that averages across adjacent time steps:
+
+$$
+SPW_x[n, k] = 2 \sum_{m=-M}^{M} h[m] \left(\sum_{p=-P}^{P} g[p] \, x[n-p+m] \, x^*[n-p-m]\right) e^{-j \frac{4\pi k m}{N_f}} \tag{A.72}
+$$
+
+The double summation provides **two independent smoothing knobs**:
+
+- Inner sum: convolves the IAF in time with $g[p]$, suppressing time-oscillating cross-terms.
+- Outer sum: windows in lag with $h[m]$ and computes the DFT, suppressing frequency-oscillating cross-terms.
+
+### A.8.4 The Smoothing Tradeoff
+
+Smoothing suppresses cross-terms but also smears genuine features. The SPWVD's advantage over the STFT: the two smoothing axes are **decoupled**:
+
+- Time resolution is set by $g[p]$ only.
+- Frequency resolution is set by $h[m]$ only.
+
+The STFT ties both to a single window length $M$. The SPWVD allows independent tuning.
+
+**The minimum smoothing rule.** To suppress a cross-term, the window must average at least one full cycle of its oscillation:
+
+To suppress a time-oscillating ghost from components separated by $\Delta f$ Hz, the time window duration must satisfy:
+
+$$
+T_g \geq \frac{1}{\Delta f} \tag{A.73}
+$$
+
+To suppress a frequency-oscillating ghost from components separated by $\Delta t$ s, the lag window bandwidth must satisfy:
+
+$$
+B_H \geq \frac{1}{\Delta t} \tag{A.74}
+$$
+
+Hann or Gaussian windows are preferred for both $g$ and $h$ - their transforms decay rapidly without strong side lobes.
+
+### A.8.5 Cohen's Class: A Unifying Framework
+
+The WVD, PWVD, SPWVD, and spectrogram are all members of **Cohen's class** of quadratic time-frequency distributions. Any shift-invariant distribution can be written as:
+
+$$
+C_x[n, k] = \sum_p \sum_m \Pi[p, m] \, W_x[n-p, k-m] \tag{A.75}
+$$
+
+where $\Pi[p, m]$ is a 2D smoothing kernel applied to the raw WVD:
+
+| Distribution | Kernel $\Pi$ | Resolution | Cross-terms |
+| --- | --- | --- | --- |
+| Raw WVD | $\delta[p]\,\delta[m]$ (no smoothing) | Maximum | Maximum |
+| Spectrogram | WVD of the STFT window (coupled) | Heisenberg-limited | Fully suppressed |
+| SPWVD | $g[p] \cdot H[m]$ (separable, independent) | Tunable per axis | Controllable |
+
+The raw WVD and the spectrogram are the two extremes of a single family. The SPWVD sits between them, offering a configurable bridge: trade resolution for ghost suppression in a controlled, axis-independent manner. Wavelets and other quadratic distributions also belong to Cohen's class but use different kernel shapes - a direction beyond the scope of this report.
 
 # Appendix A - Signal Taxonomy
 
@@ -1055,7 +1281,7 @@ $$
 where $f_0$ is the starting frequency, $\mu$ is the **chirp rate** in Hz/s (the rate at which the instantaneous frequency changes), and the instantaneous frequency at sample $n$ is:
 
 $$
-f_{\text{inst}}[n] = f_0 + \mu \cdot \frac{n}{f_s} \quad \text{(Hz)} \tag{AA.4}
+f_{\text{inst}}[n] = f_0 + \mu \cdot \frac{n}{f_s} \tag{AA.4}
 $$
 
 **Properties.**
@@ -1172,7 +1398,7 @@ $$
 **Mathematical formula (white Gaussian noise).**
 
 $$
-x[n] = \eta[n], \qquad \eta[n] \sim \mathcal{N}(0, \sigma^2), \quad \text{i.i.d.} \tag{AA.8}
+x[n] = \eta[n], \qquad \eta[n] \sim \mathcal{N}(0, \sigma^2) \tag{AA.8}
 $$
 
 Each sample is drawn independently from a Gaussian distribution with mean zero and variance $\sigma^2$.
