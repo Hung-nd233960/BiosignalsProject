@@ -3,7 +3,7 @@ Post-process pandoc LaTeX output:
 1. Replace floating \begin{figure} environments with inline images + bold captions.
 2. Fix image paths for Overleaf (strip output/ prefix from media paths).
 3. Fix bottom margin so page numbers are not clipped.
-4. Insert \clearpage before each lab/appendix section.
+4. Insert clearpage before each lab/appendix section.
 """
 
 import re
@@ -47,36 +47,46 @@ def fix_tex(filepath):
 
     content = pattern.sub(replace_figure, content)
 
-    # 4. Insert \clearpage before each lab section and appendix
-    # Labs: \subsection{...B.1 - Lab..., \subsection{...B.2 - Lab..., etc.
-    content = re.sub(
-        r'(?=\\subsection\{\\texorpdfstring\{B\.\d+ - Lab)',
-        r'\\clearpage\n',
-        content,
-    )
-    # Also before: B.7, B.8 (which use an em-dash not hyphen — check both)
-    # Already covered by the pattern above since they match B.\d+
+    # 4. Insert \clearpage before each lab/section, appendix, and Shared Infrastructure
+    # Match both \subsection{\texorpdfstring{X.\d and \subsection{X.\d
+    for prefix in ['A', 'B', 'C']:
+        content = re.sub(
+            rf'(?=\\subsection\{{(?:\\texorpdfstring\{{)?{prefix}\.\d+)',
+            '\\\\clearpage\n',
+            content,
+        )
 
     # Appendices: \section{...Appendix...
     content = re.sub(
-        r'(?=\\section\{\\texorpdfstring\{Appendix|\\section\{Appendix)',
-        r'\\clearpage\n',
+        r'(?=\\section\{(?:\\texorpdfstring\{)?Appendix)',
+        '\\\\clearpage\n',
         content,
     )
 
-    # Volume C sections: \subsection{...C.1, C.2, etc.
+    # Shared Infrastructure section
     content = re.sub(
-        r'(?=\\subsection\{\\texorpdfstring\{C\.\d+)',
-        r'\\clearpage\n',
+        r'(?=\\subsection\{Shared Infrastructure)',
+        '\\\\clearpage\n',
         content,
     )
 
-    # Volume A sections: \subsection{...A.1, A.2, etc.
+    # 5. Shrink the report title so it fits on one line
     content = re.sub(
-        r'(?=\\subsection\{\\texorpdfstring\{A\.\d+)',
-        r'\\clearpage\n',
+        r'\\section\{From the DFT to the SPWVD: Time-Frequency Analysis Applied to\s+Neonatal\s+EEG\}\\label\{[^}]*\}',
+        r'\\begin{center}{\\Large\\bfseries From the DFT to the SPWVD:\\\\ Time-Frequency Analysis Applied to Neonatal EEG}\\end{center}',
         content,
     )
+
+    # 6. Fix Table A.2 column widths (35/25/20/20 instead of 25/25/25/25)
+    if "Library / Function" in content:
+        col = r'>{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}'
+        old_block = (col + '\n  ' + col + '\n  ' + col + '\n  ' + col)
+        c1 = col.replace('0.2500', '0.3500')
+        c2 = col
+        c3 = col.replace('0.2500', '0.2000')
+        c4 = col.replace('0.2500', '0.2000')
+        new_block = (c1 + '\n  ' + c2 + '\n  ' + c3 + '\n  ' + c4)
+        content = content.replace(old_block, new_block, 1)
 
     with open(filepath, "w") as f:
         f.write(content)

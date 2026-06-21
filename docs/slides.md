@@ -3,334 +3,373 @@ marp: true
 theme: default
 paginate: true
 math: mathjax
-style: |
-  section {
-    font-family: 'Roboto', sans-serif;
-    font-size: 24px;
-  }
-  code {
-    font-family: 'Consolas', monospace;
-  }
-  h1 { font-size: 36px; }
-  h2 { font-size: 30px; }
-  table { font-size: 20px; }
 ---
 
-# Digital Signal Processing: Time-Frequency Analysis from the DFT to the SPWVD
+# From the DFT to the SPWVD
+## Time-Frequency Analysis Applied to Neonatal EEG
 
-**Application to EEG**
-
-Nguyen Duc Hung - 20233960
+**Authors:** Nguyen Duc Hung - 20233960, Bui Phuong Duy - 23233957, Tran Viet Bach - 23233954
 
 Digital Biosignal Processing - Final Report
 
 ---
 
-## Roadmap
+## Three-volume structure
 
-**Volume A** - Theory: sampling, DFT, windowing, STFT, autocorrelation, WVD, SPWVD
-**Volume B** - Labs: 8 experiments confirming the theory + Appendix B (M vs M-1 convergence)
-**Volume C** - Application to real EEG data
+- **Volume A** - Theory: DFT, windowing, STFT, autocorrelation, WVD, SPWVD
+- **Volume B** - 8 labs validating each theory section on model signals
+- **Volume C** - Application to real neonatal EEG (19 min, 24 channels)
 
-The spine: **sampling → bins → leakage → statistics → STFT/uncertainty → autocorrelation → WVD → SPWVD**
+**The arc:** each tool addresses a specific limitation of the previous one.
 
-Each concept builds on the previous. The endpoint: a time-frequency tool (SPWVD) that works on real EEG.
-
----
-
-<!-- _class: lead -->
-
-# A.1 - Signal Theory
-
-*Sampling, discrete frequency, Nyquist, and the two independent knobs.*
+DFT *(no time)* $\rightarrow$ STFT *(Heisenberg-limited)* $\rightarrow$ WVD *(cross-terms)* $\rightarrow$ SPWVD *(controllable)*
 
 ---
 
-## Sampling: Two Independent Knobs
+<!-- Part 1: Volume A Highlights -->
 
-**Sampling rate** $f_s$ controls the highest frequency we can represent (Nyquist: $f_{\max} = f_s/2$).
+## The DFT and its frequency bins
 
-**Sampling count** $N$ controls how long we observe (duration: $T = N/f_s$).
+$$X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j2\pi kn/N} \qquad \text{(A.5)}$$
 
-These are independent choices. Increasing $f_s$ does not give us more frequency resolution. Increasing $N$ does not give us a higher Nyquist frequency.
-
-| Knob | Controls | Does NOT control |
-|---|---|---|
-| $f_s$ (rate) | Nyquist frequency $f_s/2$ | Frequency resolution |
-| $N$ (count) | Duration $T$, resolution $\Delta f$ | Nyquist frequency |
+- Bin spacing: $\Delta f = f_s / N$ - fixed by the signal length
+- **On-bin** ($f$ is a multiple of $\Delta f$): energy captured perfectly in one bin
+- **Off-bin**: energy leaks across all bins (spectral leakage)
+- Zero-padding interpolates the spectrum but **does not improve resolution**
 
 ---
 
-<!-- _class: lead -->
+## Windowing and the Dirichlet kernel
 
-# A.2 - The DTFT and the DFT
+![w:900](../results/graphs/lab3/figure_B_14.png)
+**Figure B.14** - Window spectra: rectangular, Hann, Hamming, Blackman
 
-*From the continuous DTFT to the computable DFT. What a bin is.*
-
----
-
-## From the DTFT to the DFT
-
-The DTFT of a finite signal $x[n]$ is a **continuous** function of frequency:
-
-$$X(\omega) = \sum_{n=0}^{N-1} x[n] \, e^{-j\omega n}$$
-
-Problem: we cannot store a continuous function. Solution: **sample it** at $N$ equally spaced points:
-
-$$X[k] = \sum_{n=0}^{N-1} x[n] \, e^{-j 2\pi k n / N}, \qquad k = 0, 1, \ldots, N-1$$
-
-The DFT is the DTFT evaluated at $N$ specific frequencies. Each value $X[k]$ is called a **bin**.
+- Rectangular window $\rightarrow$ Dirichlet kernel; main lobe width $= 4\pi/M$
+- Cosine-sum windows trade wider main lobe for suppressed side lobes
+- First side-lobe: $-13$ dB (rect), $-32$ dB (Hann), $-43$ dB (Hamming), $-58$ dB (Blackman)
 
 ---
 
-## What a Bin Is
+## Spectral statistics: when is a peak real?
 
-A bin is one sample of the continuous DTFT, taken at frequency $f_k = k \cdot f_s / N$.
+$$P_{fa} = e^{-\gamma} \qquad \text{(A.37)}$$
 
-**Bin spacing:**
-
-$$\Delta f = \frac{f_s}{N} = \frac{1}{T} \quad \text{(Hz)}$$
-
-The bin spacing is the reciprocal of the observation time. This is not a design choice - it is a consequence of sampling the DTFT.
-
-- 1-second signal → $\Delta f = 1$ Hz
-- 20-second signal → $\Delta f = 0.05$ Hz
-- 1200-second signal → $\Delta f = 0.000833$ Hz
+- Bin power of white noise follows an **exponential distribution** (CV = 1.0)
+- A peak is real only if it exceeds the noise floor by a threshold set by $P_{fa}$
+- **Welch averaging** reduces variance ($\sigma \propto 1/\sqrt{K}$) at the cost of frequency resolution
+- Not every spectral peak is a signal - statistics provide the decision rule
 
 ---
 
-## Resolution ≠ Bin Count
+## The STFT and Heisenberg uncertainty
 
-**Bin count** = number of DFT outputs ($N$). Can be increased by zero-padding.
+$$\Delta t \cdot \Delta f \geq \beta \qquad \text{(A.49)}$$
 
-**Frequency resolution** = ability to distinguish two nearby tones. Determined by **signal duration** $T$, not DFT length.
-
-$$\Delta f_{\min} = \frac{1}{T} = \frac{f_s}{N}$$
-
-**Zero-padding** adds bins (finer sampling of the same curve) but does NOT add resolution (the curve's shape is unchanged). More points on the same curve ≠ sharper features.
-
----
-
-<!-- _class: lead -->
-
-# A.3 - Leakage and Windowing
-
-*The hidden rectangular window, spectral leakage, and the cosine-sum family.*
+- The STFT adds a **time axis** by windowing the signal before the DFT
+- Short window ($M$ small): good time resolution, poor frequency resolution
+- Long window ($M$ large): good frequency, poor time
+- **Cannot have both simultaneously** - the window length is the single knob
+- For Hann: $\beta = 2$, so $\Delta t \cdot \Delta f \geq 2$
 
 ---
 
-## The Hidden Rectangular Window
+## The WVD: perfect resolution, fatal flaw
 
-The DFT sums from $n = 0$ to $N - 1$. Everything outside is silently set to zero.
+$$W_x[n, k] = \sum_{m} R_x[n, m] \, e^{-j2\pi km/N_f} \qquad \text{(A.61)}$$
 
-This is a **rectangular window**: $w[n] = 1$ for $0 \leq n \leq N-1$, zero otherwise.
+where $R_x[n, m] = z[n+m] \cdot z^*[n-m]$ is the instantaneous autocorrelation.
 
-If the signal is not perfectly periodic within the $N$-sample frame, the abrupt truncation creates a discontinuity → **spectral leakage**.
-
-The DFT of the rectangular window is the **Dirichlet kernel**:
-
-$$D(\omega) = \frac{1}{M}\left|\frac{\sin(\omega M/2)}{\sin(\omega/2)}\right|$$
-
-Its side lobes are the source of leakage.
+- Single chirp $\rightarrow$ **razor-sharp diagonal** (bypasses Heisenberg)
+- Multi-component $\rightarrow$ **cross-terms** at the midpoint between every pair
+- Cross-terms oscillate and can be **as energetic as the real components**
+- Analytic signal (Hilbert transform) removes the DC self-ghost
 
 ---
 
-## The Cosine-Sum Window Family
+## The SPWVD: two independent smoothing knobs
 
-Trade main-lobe width for side-lobe suppression:
+$$\text{SPWVD}_x[n, k] = \sum_m h[m] \left(\sum_p g[p] \, z[n+p+m] \, z^*[n+p-m]\right) e^{-j2\pi km/N_f} \qquad \text{(A.72)}$$
 
-| Window | Main-lobe (bins) | Peak side-lobe | Rolloff | $\beta$ |
-|---|---|---|---|---|
-| Rectangular | 2 | -13 dB | 6 dB/oct | 1 |
-| Hann | 4 | -31.5 dB | 18 dB/oct | 2 |
-| Hamming | 4 | -42.7 dB | 6 dB/oct | 2 |
-| Blackman | 6 | -58 dB | 18 dB/oct | 3 |
-
-**Resolution limit** with window:
-
-$$\Delta f_{\min} \approx \beta \cdot \frac{f_s}{N}$$
-
-Wider main lobe = worse resolution, but much cleaner spectrum.
+- **Lag window** $h[m]$: smooths frequency axis $\rightarrow$ kills frequency-oscillating ghosts
+- **Time window** $g[p]$: smooths time axis $\rightarrow$ kills time-oscillating ghosts
+- Each knob trades resolution for ghost suppression **independently**
+- Unlike the STFT, time and frequency resolution are decoupled
 
 ---
 
-<!-- _class: lead -->
+## Tool progression summary
 
-# A.4 - Statistics and the DFT
+| Tool | Adds | Costs | Limitation |
+|------|------|-------|------------|
+| DFT | Global spectrum | No time info | Cannot see non-stationarity |
+| STFT | Time-frequency | Heisenberg limit | $\Delta t \cdot \Delta f \geq \beta$ |
+| WVD | Sub-Heisenberg | Cross-terms | Unusable for $\geq 2$ components |
+| SPWVD | Controllable smoothing | Some resolution loss | Residual ghosts on complex signals |
 
-*DFT bins under noise are random variables. Detection and averaging.*
-
----
-
-## Each Bin is a Random Variable
-
-Under white Gaussian noise, the **power** at each bin follows an **exponential distribution**:
-
-$$P[k] \sim \text{Exponential}\left(\lambda = \frac{1}{N\sigma^2}\right)$$
-
-Key consequence: the coefficient of variation = 1. A single bin's power estimate has **100% relative uncertainty**, regardless of $N$.
-
-**Detection:** a tone is detected if its bin power exceeds $\gamma \times$ noise floor, where:
-
-$$\Pr(P[k] > \gamma \cdot P_{\text{floor}}) = e^{-\gamma}$$
-
-This is derived from the spectral model, not from a generic "$2\sigma$" rule.
+**Each tool fixes a specific limitation of the previous one.** This is the spine of the report.
 
 ---
 
-## The Periodogram Variance Problem + Welch
+<!-- Part 2: Volume B Highlights -->
 
-A single DFT of a long signal gives **fine frequency spacing** but **ragged, unreliable** power estimates. More data does not help - the variance does not decrease with $N$.
+## Lab 1: DFT bins in action
 
-**Welch's method:** divide into $L$ overlapping segments, average their periodograms.
+![w:900](../results/graphs/lab1/figure_B_08.png)
+**Figure B.8** - Zero-padding 10 + 10.5 Hz: appears resolved but is not (below $\Delta f_{\min}$)
 
-- Variance reduced by $1/L$
-- Resolution degrades to $\beta \cdot f_s / M$ (per segment)
-- The tradeoff: resolution vs. statistical reliability
-
-| Segments | $\Delta f$ | Relative variance |
-|---|---|---|
-| 1 (full) | 0.0008 Hz | 1.000 |
-| 119 (20 s) | 0.050 Hz | 0.008 |
-| 479 (5 s) | 0.200 Hz | 0.002 |
+- 10.5 Hz is maximally off-bin $\rightarrow$ energy smeared across all bins
+- Zero-padding adds spectral samples but **cannot create resolution**
+- True resolution requires a longer signal, not more zeros
 
 ---
 
-<!-- _class: lead -->
+## Lab 3: window spectra from first principles
 
-# A.5 - The STFT and Spectrograms
+![w:900](../results/graphs/lab3/figure_B_11.png)
+**Figure B.11** - Dirichlet kernel anatomy: main lobe, side lobes, null spacing
 
-*The windowed DFT slid in time. The uncertainty principle.*
-
----
-
-## The Spectrogram
-
-Slide a windowed DFT across time, keep each spectrum indexed by position:
-
-$$X[m, k] = \sum_{n=0}^{M-1} x[n + mH] \, w[n] \, e^{-j 2\pi k n / M}$$
-
-The spectrogram $S[m, k] = |X[m, k]|^2$ is a 2D image:
-- Horizontal axis: **time** (spacing $H/f_s$)
-- Vertical axis: **frequency** (spacing $f_s/M$)
-- Color: **power**
-
-This is the first tool that answers "what frequency is present at what time."
+- All cosine-sum windows share the Dirichlet kernel as their numerator
+- The pure sine form (Equation B.20) derives the full spectrum from the kernel
+- Decay rate: $-20$ dB/octave (rect, Hamming) vs $-60$ dB/octave (Hann, Blackman)
 
 ---
 
-## The Uncertainty Principle
+## Lab 4: Heisenberg is visible on the spectrogram
 
-**The central tradeoff of the entire report.**
+![w:900](../results/graphs/lab4/figure_B_18.png)
+**Figure B.18** - Chirp spectrogram: short window (left) vs long window (right)
 
-$$\Delta t \cdot \Delta f = \beta \qquad \text{(constant for a given window)}$$
-
-| Window $M$ | $\Delta t$ (s) | $\Delta f$ (Hz) | Can resolve |
-|---|---|---|---|
-| 125 (0.5 s) | 0.5 | 4.0 | Sub-second transients |
-| 250 (1.0 s) | 1.0 | 2.0 | Alpha vs. theta bands |
-| 1250 (5.0 s) | 5.0 | 0.4 | Fine spectral detail |
-
-Short window → good time, poor frequency.
-Long window → good frequency, poor time.
-**No window captures both.** This motivates the WVD.
+- Short window tracks the chirp in time but **frequency is blurred**
+- Long window resolves frequency but **smears the chirp trajectory**
+- The Heisenberg tradeoff is not abstract - it is visible
 
 ---
 
-## Overlap and COLA
+## Lab 5: two-tone resolution confirmed
 
-Windows taper toward zero at the edges → edge samples are suppressed.
+![w:900](../results/graphs/lab5/figure_B_28.png)
+**Figure B.28** - Two tones on spectrogram: resolved (top) vs merged (bottom)
 
-**Overlap** fixes this: each sample appears in multiple segments at different positions.
-
-**COLA condition** (Hann at 50% overlap):
-
-$$w[p] + w[p + M/2] = 1 \quad \text{for all } p$$
-
-Every sample receives equal total weight. No information lost.
-
-Overlap beyond COLA (e.g. 75%) adds time columns but NOT time resolution - same distinction as zero-padding on the frequency axis.
+- Hann main-lobe width determines the minimum resolvable frequency separation
+- Tones closer than $2f_s/M$ merge into one blob
+- Lab 3 predicts the limit; Lab 5 confirms it on the spectrogram
 
 ---
 
-<!-- _class: lead -->
+## Lab 6: autocorrelation and phase-blindness
 
-# A.6 - Autocorrelation
+![w:900](../results/graphs/lab6/figure_B_33.png)
+**Figure B.33** - Two signals with different phases produce identical autocorrelations
 
-*Periodicity detection, Wiener-Khinchin, and why phase is lost.*
-
----
-
-## Autocorrelation and Wiener-Khinchin
-
-**Autocorrelation:** compare a signal with shifted copies of itself.
-
-$$r[l] = \sum_{n} x[n] \, x^*[n - l]$$
-
-- $r[0]$ = total signal energy (Parseval)
-- Periodic signal → periodic $r[l]$ → periodicity detector
-
-**Wiener-Khinchin theorem:** the DFT of the autocorrelation is the power spectrum.
-
-$$|X[k]|^2 = \text{DFT}\{r[l]\}$$
-
-Autocorrelation and power spectrum are the same information in two domains.
+- Autocorrelation reveals **periodicity** but discards **phase**
+- Wiener-Khinchin theorem: DFT of autocorrelation = power spectrum (Equation A.56)
+- The instantaneous autocorrelation is the WVD's building block (A.7)
 
 ---
 
-## Phase is Lost
+## Lab 7: WVD sharpness on a single chirp
 
-Autocorrelation tells you **which** frequencies are present and **how strong**, but NOT **when** they occur.
+![w:900](../results/graphs/lab7/figure_B_40.png)
+**Figure B.40** - STFT (left) vs WVD (right) on a single chirp
 
-Two tones with $\phi = 0$ and $\phi = \pi$: different time-domain signals, **identical** autocorrelations.
-
-This is the limitation the WVD addresses:
-- Global autocorrelation → **instantaneous** autocorrelation at each time $n$
-- Wiener-Khinchin → a **time-indexed** family of Fourier pairs
-- The result: the WVD = the sharpest time-frequency representation
+- STFT: thick, blurred diagonal (Heisenberg-limited)
+- WVD: **razor-sharp line** tracking the instantaneous frequency exactly
+- For a single component, the WVD completely bypasses Heisenberg
 
 ---
 
-<!-- _class: lead -->
+## Lab 7: cross-terms ruin multi-component signals
 
-# Signal Taxonomy
+![w:900](../results/graphs/lab7/figure_B_42.png)
+**Figure B.42** - Chirp + tone: clean STFT (left) vs corrupted WVD (right)
 
-*The reference grid for the entire report.*
-
----
-
-## Six Archetypes x Four Transforms
-
-| Archetype | DFT | STFT | WVD | SPWVD |
-|---|---|---|---|---|
-| Single tone | spike | horiz. line | sharp line | clean |
-| Mixed tones | spikes | parallel lines | lines + ghosts | ghosts suppressed |
-| Chirp | smear | blurred diagonal | **sharp diagonal** | sharp |
-| Multi-chirp | smears | blurred crossings | diagonals + ghosts | ghosts suppressed |
-| Transient | flat | vertical stripe | stripe + ghosts | ghosts suppressed |
-| Noise | flat | speckle | speckle | speckle (can't fix) |
-
-Every lab in Volume B and every analysis in Volume C maps back to this table.
+- STFT: clean superposition of chirp and tone
+- WVD: sharp components **plus oscillating ghost** at the midpoint frequency
+- The ghost is as energetic as the real components - the WVD is unusable
 
 ---
 
-<!-- _class: lead -->
+## Lab 8: WVD to PWVD to SPWVD progression
 
-# What's Next
+![w:900](../results/graphs/lab8/figure_B_46.png)
+**Figure B.46** - Step-by-step ghost suppression (linear left, dB right)
+
+- **WVD** (top): sharp trajectories, heavy cross-terms
+- **PWVD** (middle): lag window $h$ smooths frequency - time ghosts **survive**
+- **SPWVD** (bottom): time window $g$ added - **both ghost types suppressed**
 
 ---
 
-## Volume B: Confirm Everything
+## Lab 8: the duality of ghost types
 
-8 labs, each testing a specific claim from Volume A:
+![w:900](../results/graphs/lab8/figure_B_49.png)
+**Figure B.49** - Two impulses: frequency-oscillating ghosts, PWVD suppresses them
 
-1. **DFT** - bins, leakage, zero-padding
-2. **Statistics** - exponential distribution, Welch
-3. **Windowing** - Dirichlet kernel derivation
-4. **STFT** - Heisenberg tradeoff
-5. **Resolution** - two-tone test on spectrograms
-6. **Autocorrelation** - periodicity, Wiener-Khinchin
-7. **WVD** - sharp chirp, cross-terms
-8. **SPWVD** - two-knob ghost suppression
+- Components separated in **time** $\rightarrow$ frequency-oscillating ghost $\rightarrow$ PWVD kills it
+- Components separated in **frequency** $\rightarrow$ time-oscillating ghost $\rightarrow$ needs SPWVD
+- The SPWVD handles both; the PWVD handles only one axis
 
-Then **Volume C**: apply it all to real EEG.
+---
+
+## Lab 8: two-knob sweep
+
+![w:900](../results/graphs/lab8/figure_B_47.png)
+**Figure B.47** - SPWVD: strong freq smoothing (top) vs strong time smoothing (bottom)
+
+- Case 1 (h=101, g=5): sharp frequency, time ghosts survive ($T_g < 1/\Delta f$)
+- Case 2 (h=25, g=31): clean but frequency blurred
+- Unlike STFT, the two axes are **independently controlled**
+
+---
+
+<!-- Part 3: Volume C Highlights -->
+
+## The dataset: neonatal EEG
+
+- **Subject:** NORB00055 (neonatal), European Data Format (EDF)
+- **Sampling rate:** 200 Hz, **duration:** 1140 s (19 min), **channels:** 24 (19 EEG + 5 auxiliary)
+- **Primary channel:** CZ (vertex) - least biased starting point
+- **No filtering applied** - only tools derived in Volumes A and B are used
+- Loaded via MNE; amplitude in $\mu$V throughout
+
+---
+
+## C.1 Triage: delta dominance
+
+![w:900](../results/graphs/volume_c/c1/figure_C_06.png)
+**Figure C.6** - Band power distribution: 91.8% delta
+
+- Delta (0.5-4 Hz): **91.8%**, theta: 5.7%, alpha: 1.0%, beta: 1.0%
+- No alpha or beta rhythms - consistent with neonatal EEG
+- Whole-brain synchronous: all channels show the same burst pattern
+- Triage decision: delta-dominated, bursty, non-stationary
+
+---
+
+## C.2: is delta rhythmic or 1/f?
+
+![w:900](../results/graphs/volume_c/c2/figure_C_09.png)
+**Figure C.9** - Log-log PSD with 1/f fit (slope = -3.18)
+
+- PSD follows $1/f^{3.18}$ from 5-40 Hz - steeper than pink noise ($1/f$)
+- Delta peaks at 0.4-0.6 Hz sit **below** the 1/f extrapolation
+- Cannot tell from the DFT alone if delta is continuous or bursty
+- Need the time axis $\rightarrow$ C.3 (STFT)
+
+---
+
+## C.3: STFT reveals the burst pattern
+
+![w:900](../results/graphs/volume_c/c3/figure_C_12.png)
+**Figure C.12** - Full-recording spectrogram: delta bursts visible as vertical stripes
+
+- Delta power is **not continuous** - it comes in bursts
+- 19% of the recording is burst, 81% is quiet (threshold: 2x median)
+- Max/median ratio: 17x - bursts are highly energetic
+- Answers C.2's open question: **discontinuous delta, not continuous oscillation**
+
+---
+
+## C.3: burst detection quantified
+
+![w:900](../results/graphs/volume_c/c3/figure_C_16.png)
+**Figure C.16** - Delta power overlaid on CZ time domain with burst markers
+
+- Burst threshold: $2 \times$ median delta power = 3479 $\mu$V$^2$
+- Delta-theta correlation: $\rho = 0.33$ (partially independent)
+- The burst structure is the dominant non-stationary feature of this EEG
+
+---
+
+## C.4: is CZ clean for WVD analysis?
+
+- **Cross-correlation (Lab 6):** all auxiliary channels $\rho < 0.03$ vs CZ
+- **EEG inter-channel:** $\rho = 0.47 - 0.78$ (shared brain activity, expected)
+- **Noise floor (Lab 2):** CV = 1.11 on alpha band (close to exponential 1.00)
+  - 11% deviation: close but not exact - honest characterization of model limits
+- **Verdict:** CZ is clean. No auxiliary contamination detected.
+- Artifacts were **not removed** - C.5 selects a clean segment instead
+
+---
+
+## C.5: segment selection - the honest story
+
+![w:900](../results/graphs/volume_c/c5/figure_C_22.png)
+**Figure C.22** - REJECTED: strongest burst (8.7x median) shows amplifier saturation
+
+- Strongest burst at t = 842.5 s: 15597 $\mu$V$^2$ - but **44 flat samples** (clipping)
+- Fell back to 75th percentile: t = 65.0 s, 5435 $\mu$V$^2$ (3.0x median), clean
+- The strongest burst in the recording is an **artifact**, not physiology
+- Data-driven selection including the failure: transparent methodology
+
+---
+
+## C.5: raw WVD on real EEG
+
+![w:900](../results/graphs/volume_c/c5/figure_C_25.png)
+**Figure C.25** - Raw WVD of clean delta burst: cross-term contamination
+
+- **49% of values are negative** - the WVD is not a true power distribution
+- Oscillating cross-terms fill the entire time-frequency plane
+- Even a 2-second segment with ~3 components generates severe contamination
+- Confirms A.7.3 and Lab 7: the raw WVD is unusable on real EEG
+
+---
+
+## C.5: SPWVD - the payoff and its limit
+
+![w:900](../results/graphs/volume_c/c5/figure_C_27.png)
+**Figure C.27** - STFT vs WVD vs SPWVD on the same burst segment
+
+- **STFT** (top): blurred but readable
+- **WVD** (middle): sharp but corrupted by cross-terms
+- **SPWVD** (bottom, linear): **sharpest readable view** of the burst
+- SPWVD dB panel: residual circular artifacts (cross-term remnants without filtering)
+
+---
+
+## Why not filter before WVD?
+
+- Bandpass (0.5-4 Hz) would reduce components $\rightarrow$ fewer cross-terms $\rightarrow$ cleaner SPWVD
+- **But:** Volumes A-B did not derive filter theory (no FIR, no IIR design)
+- Using a tool without deriving it violates the report's principle
+- **Segment selection** is the only preprocessing available to us - and it works
+- Future work: derive FIR design using Lab 3's windows, then bandpass before WVD
+
+---
+
+<!-- Part 4: Closing -->
+
+## What worked
+
+| Tool | Applied to | Finding |
+|------|-----------|---------|
+| DFT + Welch | Full recording | Delta dominance (91.8%), 1/f slope = -3.18 |
+| STFT | Full recording | Burst pattern: 19% burst, 81% quiet |
+| Cross-correlation | Auxiliary vs CZ | CZ is clean ($\rho < 0.03$) |
+| SPWVD | 2 s burst segment | Sharper burst localization than STFT |
+
+Each tool addressed a specific limitation of the previous one.
+
+---
+
+## What did not work
+
+- **Raw WVD** unusable on real EEG (49% negative values, cross-term soup)
+- **SPWVD dB panel** still contaminated by residual cross-terms (circular patterns)
+- **Exponential noise model** approximate on real data (CV = 1.11 vs ideal 1.00)
+- **Strongest burst** was amplifier saturation, not a physiological event
+
+These are the method's honest limits, not failures. Reporting them is the point.
+
+---
+
+## Closing claim
+
+The progression **DFT $\rightarrow$ STFT $\rightarrow$ SPWVD** provides increasingly detailed views of the same neonatal EEG signal.
+
+The SPWVD achieves **sub-Heisenberg resolution** on selected clean segments. Its practical value is in the **linear-scale representation**. The dB representation is partially compromised by residual cross-terms without filtering.
+
+The neonatal EEG is consistent with **normal discontinuous neonatal activity**: delta-dominated, bursty, whole-brain synchronous (Lamblin et al., 1999; Andre et al., 2010).
+
+**No clinical diagnosis is made or implied** - these are signal-processing observations.

@@ -2,7 +2,7 @@
 
 ## Volume B - Application and Derivation (Labs)
 
-**Author:** Nguyen Duc Hung - 20233960
+**Authors:** Nguyen Duc Hung - 20233960, Bui Phuong Duy - 23233957, Tran Viet Bach - 23233954
 
 ### What this volume covers
 
