@@ -58,15 +58,15 @@ These are all manual — we do NOT use LaTeX's `\label`/`\ref` system because pa
 
 ```bash
 # Step 1: Clean markdown
-python3 build_docs/prettier.py docs/volume_B.md
+python3 build_docs/prettier.py docs/reports/volume_B.md
 
 # Step 2: Markdown → LaTeX (with embedded images)
-~/miniforge3/bin/pandoc docs/volume_B.md \
+~/miniforge3/bin/pandoc docs/reports/volume_B.md \
     -o output/volume_B.tex \
     --from=markdown+tex_math_dollars+pipe_tables --standalone \
     -V geometry:"top=2cm, bottom=2cm, left=2cm, right=1cm" \
     --extract-media=output/media_B \
-    --resource-path=docs
+    --resource-path=docs/reports
 
 # Step 3: Fix figures + image paths
 python3 build_docs/fix_tex.py output/volume_B.tex

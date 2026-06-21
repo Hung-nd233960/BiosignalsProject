@@ -2,7 +2,7 @@
 
 We are undergraduate Biomedical Engineering students taking a Digital Biosignal Processing class. This is the final report on signal processing. Our team chose to study the basics of the DFT and STFT, then expand into the Wigner-Ville Distribution (WVD) and Smoothed Pseudo Wigner-Ville Distribution (SPWVD) as the advanced topic to learn and apply. The application target is real EEG data.
 
-The report is split into three volumes (see `TABLE_OF_CONTENTS.md`):
+The report is split into three volumes (see `docs/standards/TABLE_OF_CONTENTS.md`):
 
 - **Volume A** — Theory (A.1–A.8) + Appendix A (signal taxonomy)
 - **Volume B** — Labs (B.1–B.8) with EEG-realism signal constraints
@@ -17,7 +17,7 @@ A unified slide deck accompanies all three volumes.
 - **Academic but honest.** Serious enough for a university report, but written as students explaining concepts we learned — not as textbook authors. No false authority; if something is approximate or heuristic, say so.
 - **Neutral.** No hype, no hedging. State what the method does, what it costs, and what we observed.
 - **Discrete realm.** All mathematical formulas, derivations, and interpretations are explicitly discrete-time and discrete-frequency. Use summations (not integrals), sample indices (not continuous time), and normalized/discrete frequency. The continuous-time form may be mentioned for motivation, but the working formula is always the discrete version.
-- **No "gap callouts" in the reports.** The gap framing ("Signals & Systems gives you X, this section adds Y") is internal planning language in `TABLE_OF_CONTENTS.md`. Do NOT include it in the actual volumes (volume_A.md, volume_B.md, volume_C.md) or slides. The reports teach the material directly without referencing what the reader is assumed to be missing.
+- **No "gap callouts" in the reports.** The gap framing ("Signals & Systems gives you X, this section adds Y") is internal planning language in `docs/standards/TABLE_OF_CONTENTS.md`. Do NOT include it in the actual volumes (`docs/reports/volume_A.md`, `volume_B.md`, `volume_C.md`) or slides. The reports teach the material directly without referencing what the reader is assumed to be missing.
 - **No `>` blockquotes in submitted reports.** Blockquotes (`> text`) are internal editorial notes and planning reminders. They must be removed before submission. The `prettier.py` script strips them automatically.
 
 ---
@@ -33,13 +33,13 @@ A unified slide deck accompanies all three volumes.
 
 ## Reference Files
 
-- `TABLE_OF_CONTENTS.md` — master plan with all section outlines, lab templates, and internal planning notes (gap callouts). This is the source of truth for structure.
+- `docs/standards/TABLE_OF_CONTENTS.md` — master plan with all section outlines, lab templates, and internal planning notes (gap callouts). This is the source of truth for structure.
 - `CLAUDE.md` — this file. Project standards, conventions, and rules for all contributors (human and AI).
 - `src/README.md` — code contributor guide: directory layout, import rules, naming conventions.
 - `environment.yml` — conda environment definition. Single source of truth for dependencies.
 - `template/reference.docx` — Word template for pandoc: Roboto body, Consolas code, margins (top 2cm, left 2cm, right 1cm, bottom 1cm), page numbers bottom center.
 - `docs/METHODOLOGY.md` — records every rule in this file, why it was added, and what problem it solved. **When adding or changing a rule in CLAUDE.md, update METHODOLOGY.md with the reason.**
-- `docs/DOCUMENT_STANDARD.md` — LaTeX/PDF formatting standard: page layout, figure handling (no floats), equation tags, numbering, build pipeline, and known issues. **All LaTeX output must conform to this file.**
+- `docs/standards/DOCUMENT_STANDARD.md` — LaTeX/PDF formatting standard: page layout, figure handling (no floats), equation tags, numbering, build pipeline, and known issues. **All LaTeX output must conform to this file.**
 
 ---
 
@@ -50,18 +50,18 @@ A unified slide deck accompanies all three volumes.
 **Step 1: Touch up markdown** (removes horizontal rules, blockquotes, fancy dashes):
 
 ```bash
-python build_docs/prettier.py docs/volume_B.md
+python build_docs/prettier.py docs/reports/volume_B.md
 ```
 
 **Step 2a: Markdown to LaTeX** (primary) -- with embedded images for Overleaf:
 
 ```bash
-~/miniforge3/bin/pandoc docs/volume_B.md \
+~/miniforge3/bin/pandoc docs/reports/volume_B.md \
     -o output/volume_B.tex \
     --from=markdown+tex_math_dollars+pipe_tables --standalone \
     -V geometry:"top=2cm, bottom=2cm, left=2cm, right=1cm" \
     --extract-media=output/media_B \
-    --resource-path=docs
+    --resource-path=docs/reports
 
 # Fix image paths and remove floating figures (prevents double-numbering)
 python3 build_docs/fix_tex.py output/volume_B.tex
@@ -72,12 +72,12 @@ Upload to Overleaf: `volume_B.tex` + the `media_B/` folder (side by side). Image
 **Step 2b: Markdown to Word (.docx)** (secondary):
 
 ```bash
-~/miniforge3/bin/pandoc docs/volume_B.md \
+~/miniforge3/bin/pandoc docs/reports/volume_B.md \
     -o output/volume_B.docx \
     --from=markdown+tex_math_dollars+pipe_tables \
     --mathml \
     --reference-doc=template/reference.docx \
-    --resource-path=docs
+    --resource-path=docs/reports
 ```
 
 **Step 2c: LaTeX to PDF** locally via tectonic:

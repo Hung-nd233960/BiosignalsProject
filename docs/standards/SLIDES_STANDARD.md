@@ -9,6 +9,10 @@ Rules for the presentation slide deck accompanying all three volumes.
 - **Math:** LaTeX via `$...$` and `$$...$$`
 - **Images:** embedded from `results/graphs/` relative paths
 - **Export:** HTML (primary), PDF (print), PPTX (fallback)
+- **Versions:** three lengths in `docs/slides/`:
+  - `SHORT.md` (~35 slides) - highlights only, one slide per concept/lab
+  - `MEDIUM.md` (~70 slides) - expanded, two slides per lab (setup + result)
+  - `LONG.md` (~100-120 slides) - comprehensive teaching deck, full walkthrough
 
 ## Content Density
 
@@ -38,7 +42,26 @@ Rules for the presentation slide deck accompanying all three volumes.
   - Good: "SPWVD suppresses cross-terms independently per axis"
   - Bad: "Lab 8"
   - Bad: "Results"
+- **Title Case after section or lab labels.** Capitalize each major word in the title.
+  - Good: "Lab 3: Window Spectra from First Principles"
+  - Bad: "Lab 3: Window spectra from first principles"
+  - Good: "C.5: Segment Selection - The Honest Story"
 - **Titles are one line.** If the title wraps, shorten it.
+
+## Language and Tone
+
+- **Extra formal.** Slides are the public face of the report. Language must be precise and professional - no casual phrasing, no abbreviations without definition, no sentence fragments.
+  - Good: "The SPWVD suppresses both time-oscillating and frequency-oscillating cross-terms."
+  - Bad: "SPWVD kills both ghost types."
+- **Complete sentences in bullets.** Every bullet is a grammatically complete sentence, not a note or keyword.
+- **No slang, no hedging, no hype.** State facts. "The raw WVD produces 49% negative values" not "The WVD completely fails."
+
+## Title Positioning
+
+- **Titles are positioned at the top of the slide** with extra spacing above. In Marp, use a custom style or `<!-- _class: lead -->` for emphasis slides. For regular slides, the default `## Title` heading provides adequate top positioning. If the title appears too low, add a Marp directive:
+  ```
+  <style>section h2 { margin-top: 0; }</style>
+  ```
 
 ## Narrative Rules
 

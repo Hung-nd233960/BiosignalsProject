@@ -92,16 +92,6 @@ Volume C applies the same tools to real EEG data. Additional standards:
 - **Clinical claims cited, not asserted.** We are engineering students, not clinicians.
 - **WVD/SPWVD on selected segments only.** Full-record WVD is cross-term soup. Selecting clean segments is the correct use of the tool.
 
-## Build Pipeline
-
-Reports are written in markdown, then converted:
-- **prettier.py** - strips horizontal rules, blockquotes, and fancy dashes before conversion
-- **pandoc** - markdown to Word (.docx) with a reference template (Roboto body, Consolas code, margins 2/2/1/1 cm, page numbers bottom center)
-- **pandoc + tectonic** - markdown to LaTeX to PDF
-- **Marp** - markdown to HTML slides
-
-The build pipeline was set up mid-project when we needed to deliver formatted documents. The key insight: write in markdown (diffable, versionable), convert for submission.
-
 ## Code-Figure Traceability
 
 **Every figure must have its code in the report.** This rule was added when Volume C's early drafts showed figures without the code that produced them. The instructor's concern: "how do I know this is what you actually computed?" Without the code, the figure is an unsupported claim. The pattern enforced is: **code block → figure → interpretation.** No figure appears without the reader seeing exactly how it was generated. This applies to both Volume B and Volume C.
@@ -119,6 +109,47 @@ The build pipeline was set up mid-project when we needed to deliver formatted do
 **LaTeX is the primary output format.** The project started with Word (.docx) via pandoc + MathML. However, pandoc's MathML renderer choked on complex equations with `\tag{}` inside `\text{}` blocks, producing 13+ warnings on Volume A alone. LaTeX handles `\tag{}` natively with no issues. Additionally, Overleaf provides collaborative editing, proper typesetting, and PDF export without local TeX installation. The `--extract-media` flag embeds images as hashed PNGs in a `media_X/` folder, making Overleaf upload simple: one .tex file + one image folder.
 
 **Word remains secondary** for quick previews and instructor compatibility (some prefer .docx). The `--resource-path=docs` flag resolves relative image paths from the markdown's perspective.
+
+## fix_tex.py Post-Processing
+
+Pandoc's LaTeX output requires several fixes before it compiles cleanly:
+
+1. **Figure floats removed.** Pandoc wraps images in `\begin{figure}` which auto-numbers them ("Figure 1:"), conflicting with our manual "Figure B.1" labels. `fix_tex.py` replaces all `\begin{figure}` environments with `\begin{center}` blocks.
+2. **Media paths stripped.** Pandoc's `--extract-media` produces paths like `output/media_B/hash.png`. The script strips the `output/` prefix so Overleaf sees `media_B/hash.png`.
+3. **Clearpage before sections.** Each lab and appendix starts on a new page. The script inserts `\clearpage` before `\subsection{A.\d`, `\subsection{B.\d`, `\subsection{C.\d`, `\section{Appendix`, and `\subsection{Shared Infrastructure`.
+4. **Title shrunk.** The report title is too long for `\section` font size. Replaced with `\Large\bfseries` centered block.
+5. **Table A.2 column widths.** The 4-column library defaults table was cramped at 25/25/25/25. Changed to 35/25/20/20 for the wider first column.
+
+Each fix was added when a specific problem was encountered. The script is idempotent when run on fresh pandoc output but should NOT be run twice on the same file (clearpage would double).
+
+## WVD Colorbar Labels
+
+The WVD is a quasi-distribution that can produce **negative values** (unlike the STFT power spectrogram which is always non-negative). Colorbars on WVD/SPWVD plots say "WVD value" (linear) and "|WVD| (dB)" rather than "Power" to avoid implying the values are physical power. STFT colorbars correctly say "Power (linear)" and "Power (dB)".
+
+## Segment Selection for WVD on Real EEG
+
+The WVD/SPWVD cannot handle the full multi-component noisy EEG record. The prescribed approach: select clean, short segments using C.3's burst detection (2x median delta power threshold). The selection process is data-driven and includes honest failure reporting: the strongest burst was amplifier saturation (44 flat samples) and was rejected; the 75th percentile burst was clean and was accepted. This methodology is shown transparently in C.5.1, not hidden.
+
+No filtering was applied because Volumes A-B did not derive filter theory. This is a scope boundary, not a failure.
+
+## Slide Standards
+
+Three slide deck versions (SHORT ~35, MEDIUM ~70, LONG ~117) in `docs/slides/`. Standards in `docs/standards/SLIDES_STANDARD.md`:
+
+- **Title Case** on all slide titles (e.g. "Lab 3: Window Spectra from First Principles").
+- **Formal language.** Complete sentences in all bullets, no slang, no casual phrasing. Slides are the public face of the report.
+- **Purpose → Result structure for labs.** Each lab's slides lead with the question being asked, then show the answer (the key figure). The figure is the star, not the setup.
+- **Content density:** 3-5 bullets, 1 figure max, 1-2 equations max, minimum ~20 words per slide.
+
+## Directory Structure
+
+Reorganized `docs/` into three subdirectories:
+
+- `docs/reports/` - Volume A, B, C markdown source
+- `docs/slides/` - SHORT.md, MEDIUM.md, LONG.md
+- `docs/standards/` - TABLE_OF_CONTENTS, DOCUMENT_STANDARD, SLIDES_STANDARD, SLIDES_CONTENT
+
+This was done because the flat `docs/` directory had 10+ files mixing reports, slides, and standards. The subdirectories make the purpose of each file obvious. Image paths in reports changed from `../results/` to `../../results/` accordingly.
 
 ## What We Would Do Differently
 

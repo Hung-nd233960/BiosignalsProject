@@ -329,29 +329,29 @@ plot_dual_stack_spectrum(freqs_pad, compute_power(X_pad, N_orig),
 
 **Experiment A** - Figure B.1 shows the time-domain waveforms of both tones over the first 0.5 s. Both are clean cosines, indistinguishable by eye.
 
-![Figure B.1a - On-bin tone, time domain](../results/graphs/lab1/figure_B_01.png)
+![Figure B.1a - On-bin tone, time domain](../../results/graphs/lab1/figure_B_01.png)
 
-![Figure B.1b - Off-bin tone, time domain](../results/graphs/lab1/figure_B_02.png)
+![Figure B.1b - Off-bin tone, time domain](../../results/graphs/lab1/figure_B_02.png)
 
 Figure B.2 shows the dual-stack power spectra - and the contrast is dramatic. The on-bin tone at 10.0 Hz (Figure B.2a) produces a single spike with zero leakage: the dB panel shows −200 dB (numerical floor) at all other bins. The off-bin tone at 10.5 Hz (Figure B.2b) shows **maximum leakage**: the tone's energy is split between bins 10 and 11 (neither captures it fully), and the side lobes spread power across the entire spectrum. The dB panel never drops below −25 dB - energy is everywhere.
 
-![Figure B.2a - On-bin tone spectrum, no leakage](../results/graphs/lab1/figure_B_03.png)
+![Figure B.2a - On-bin tone spectrum, no leakage](../../results/graphs/lab1/figure_B_03.png)
 
-![Figure B.2b - Off-bin tone spectrum, maximum leakage](../results/graphs/lab1/figure_B_04.png)
+![Figure B.2b - Off-bin tone spectrum, maximum leakage](../../results/graphs/lab1/figure_B_04.png)
 
 This is the Dirichlet kernel (Lab 3, Equation (B.11)) in action. At 10.5 Hz, the tone falls exactly at the midpoint between two bins ($f_0 / \Delta f = 10.5$, half-integer). The DFT evaluates the DTFT at the bin frequencies, and none of them align with the tone - every bin sees the tone through a side lobe. The 1-second duration ($N = 250$, $\Delta f = 1.0$ Hz) makes this effect maximally visible; at the full 1200-second duration, the bin grid is so fine ($\Delta f = 0.000833$ Hz) that nearly every frequency lands on a bin and leakage vanishes. This is why windowing (Section A.3, Lab 3) exists: to suppress the side lobes that cause this leakage.
 
 **Experiment B** - Figure B.3 shows the dual-tone chord. The time-domain plot (Figure B.3a) shows the expected beat pattern. The spectrum (Figure B.3b) shows two clean spikes at 10 Hz and 12 Hz, fully resolved. The separation (2.0 Hz) is $2400 \times \Delta f$.
 
-![Figure B.3a - Dual-tone chord, time domain](../results/graphs/lab1/figure_B_05.png)
+![Figure B.3a - Dual-tone chord, time domain](../../results/graphs/lab1/figure_B_05.png)
 
-![Figure B.3b - Dual-tone chord spectrum](../results/graphs/lab1/figure_B_06.png)
+![Figure B.3b - Dual-tone chord spectrum](../../results/graphs/lab1/figure_B_06.png)
 
 **Experiment C** - Figure B.4 compares the original and zero-padded spectra of two tones at 10 Hz and 10.5 Hz (separation 0.5 Hz, below $\Delta f_{\min} = 1.0$ Hz). The original ($N = 250$, $\Delta f = 1.0$ Hz, Figure B.4a) shows a single lobe - the two tones are merged. The zero-padded spectrum ($N = 1000$, $\Delta f = 0.25$ Hz, Figure B.4b) shows the same single lobe sampled more densely - smoother, but still one peak with no dip. Zero-padding added bins between the peaks, but the DTFT itself has no dip to reveal. The two tones are unresolvable at this duration, and no amount of zero-padding changes that.
 
-![Figure B.4a - Original, no zero-padding](../results/graphs/lab1/figure_B_07.png)
+![Figure B.4a - Original, no zero-padding](../../results/graphs/lab1/figure_B_07.png)
 
-![Figure B.4b - Zero-padded 4×](../results/graphs/lab1/figure_B_08.png)
+![Figure B.4b - Zero-padded 4×](../../results/graphs/lab1/figure_B_08.png)
 
 ### Verification
 
@@ -485,7 +485,7 @@ for seg_dur in [1200, 20.0, 5.0, 2.0]:                   # segment durations (s)
 
 **Experiment A** - Figure B.5 shows three histograms of DFT bin statistics for pure noise:
 
-![Figure B.5 - DFT bin distributions under white Gaussian noise](../results/graphs/lab2/figure_B_01.png)
+![Figure B.5 - DFT bin distributions under white Gaussian noise](../../results/graphs/lab2/figure_B_01.png)
 
 - *Magnitude* $|X[k]|$: Rayleigh distribution - zero at origin, single peak, long tail.
 - *Phase* $\angle X[k]$: uniform on $(-\pi, \pi]$. The theoretical line at $1/(2\pi) \approx 0.159$ matches the histogram.
@@ -493,11 +493,11 @@ for seg_dur in [1200, 20.0, 5.0, 2.0]:                   # segment durations (s)
 
 **Experiment B** - Figure B.6 shows the time domain of the tone-in-noise signal over the first 2 seconds. The tone ($A = 0.5$) is invisible - buried in noise ($\sigma = 1.0$). Time-domain inspection cannot detect it.
 
-![Figure B.6 - Tone buried in noise, time domain](../results/graphs/lab2/figure_B_02.png)
+![Figure B.6 - Tone buried in noise, time domain](../../results/graphs/lab2/figure_B_02.png)
 
 Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz produces a power of 18,569 - a ratio of 26,788× the noise floor. Detected at all three thresholds:
 
-![Figure B.7 - Periodogram with detection thresholds](../results/graphs/lab2/figure_B_03.png)
+![Figure B.7 - Periodogram with detection thresholds](../../results/graphs/lab2/figure_B_03.png)
 
 **Table B.4 - Detection thresholds**
 
@@ -509,7 +509,7 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 
 **Experiment C** - Figure B.8 shows the Welch progression (dual-stack: linear left, dB right):
 
-![Figure B.8 - Welch averaging progression](../results/graphs/lab2/figure_B_04.png)
+![Figure B.8 - Welch averaging progression](../../results/graphs/lab2/figure_B_04.png)
 
 **Table B.5 - Welch progression**
 
@@ -626,7 +626,7 @@ def dirichlet_kernel(omega, M):
 
 Figure B.9 shows the normalized Dirichlet kernel $D(\omega)$ at $M = 256$, plotted as a continuous function of frequency in bins.
 
-![Figure B.9 - Dirichlet kernel anatomy](../results/graphs/lab3/figure_B_09.png)
+![Figure B.9 - Dirichlet kernel anatomy](../../results/graphs/lab3/figure_B_09.png)
 
 **Nulls.** The numerator $\sin(\omega M/2)$ vanishes when $\omega M/2 = k\pi$ for integer $k \neq 0$, i.e. at:
 
@@ -646,7 +646,7 @@ The **midpoint approximation** $\omega \approx (2k+1)\pi/M$ (i.e. bin $\approx k
 
 **Envelope.** Figure B.10 shows the kernel with the envelope $1/(M \cdot |\sin(\omega/2)|)$ overlaid.
 
-![Figure B.10 - Dirichlet kernel with envelope](../results/graphs/lab3/figure_B_10.png)
+![Figure B.10 - Dirichlet kernel with envelope](../../results/graphs/lab3/figure_B_10.png)
 
 For large $\omega$ (far from the main lobe), $\sin(\omega/2) \approx \omega/2$ breaks down, but the envelope still tracks the side-lobe peaks accurately. The side lobes touch the envelope because $|\sin(\omega M/2)|$ reaches 1 near (but not exactly at) each maximum.
 
@@ -676,7 +676,7 @@ The first side lobe is the tallest, and its level relative to the main lobe dete
 
 Figure B.11 zooms into the first side lobe.
 
-![Figure B.11 - First side-lobe analysis](../results/graphs/lab3/figure_B_11.png)
+![Figure B.11 - First side-lobe analysis](../../results/graphs/lab3/figure_B_11.png)
 
 The true maximum is located by finding the local peak of the computed spectrum:
 
@@ -767,7 +767,7 @@ dB_per_octave = slope * 20 * np.log10(2)                  # convert to dB/octave
 
 **Results** (Figure B.12):
 
-![Figure B.12 - Side-lobe decay analysis](../results/graphs/lab3/figure_B_12.png)
+![Figure B.12 - Side-lobe decay analysis](../../results/graphs/lab3/figure_B_12.png)
 
 **Table B.10 - Decay regression results**
 
@@ -959,9 +959,9 @@ This is the precise mechanism behind the rolloff rule from Section A.3.4: the ro
 
 Figure B.13 overlays the normalized spectra $D(\omega)$ of all four windows on one plot in linear scale, zoomed to the side-lobe region ($|D| \leq 0.25$). Figure B.14 shows the same comparison at full scale.
 
-![Figure B.13 - Window spectra comparison, linear scale (zoomed)](../results/graphs/lab3/figure_B_13.png)
+![Figure B.13 - Window spectra comparison, linear scale (zoomed)](../../results/graphs/lab3/figure_B_13.png)
 
-![Figure B.14 - Window spectra comparison, full range](../results/graphs/lab3/figure_B_14.png)
+![Figure B.14 - Window spectra comparison, full range](../../results/graphs/lab3/figure_B_14.png)
 
 The tradeoff is immediately visible:
 
@@ -1096,17 +1096,17 @@ Full source: `src/lab4_stft/lab4.py`.
 
 Figure B.15 shows the chirp in the time domain (first 5 seconds).
 
-![Figure B.15 - Linear chirp 5→45 Hz, time domain](../results/graphs/lab4/figure_B_15.png)
+![Figure B.15 - Linear chirp 5→45 Hz, time domain](../../results/graphs/lab4/figure_B_15.png)
 
 Figures B.16-B.19 show the spectrogram of the same chirp at four window lengths, displayed in dual-stack (linear + dB). The dB scale is used because the chirp and noise floor differ by orders of magnitude - the dB panel reveals leakage structure that the linear panel compresses to invisibility. The diagonal sweeps from 5 Hz to 45 Hz over 120 seconds. The key observation: the diagonal's **thickness** changes with $M$, but the $\Delta t \cdot \Delta f$ product is constant at $\beta = 2$.
 
-![Figure B.16 - M=125 (0.5 s): thick diagonal, Δf=4.0 Hz](../results/graphs/lab4/figure_B_16.png)
+![Figure B.16 - M=125 (0.5 s): thick diagonal, Δf=4.0 Hz](../../results/graphs/lab4/figure_B_16.png)
 
-![Figure B.17 - M=250 (1.0 s): moderate thickness, Δf=2.0 Hz](../results/graphs/lab4/figure_B_17.png)
+![Figure B.17 - M=250 (1.0 s): moderate thickness, Δf=2.0 Hz](../../results/graphs/lab4/figure_B_17.png)
 
-![Figure B.18 - M=500 (2.0 s): thin diagonal, Δf=1.0 Hz](../results/graphs/lab4/figure_B_18.png)
+![Figure B.18 - M=500 (2.0 s): thin diagonal, Δf=1.0 Hz](../../results/graphs/lab4/figure_B_18.png)
 
-![Figure B.19 - M=1250 (5.0 s): very thin diagonal, Δf=0.4 Hz, but staircase steps in time](../results/graphs/lab4/figure_B_19.png)
+![Figure B.19 - M=1250 (5.0 s): very thin diagonal, Δf=0.4 Hz, but staircase steps in time](../../results/graphs/lab4/figure_B_19.png)
 
 **Table B.14 - Heisenberg tradeoff**
 
@@ -1123,11 +1123,11 @@ Every row has $\Delta t \cdot \Delta f = 2.0$ (Hann's $\beta$). The slider moves
 
 Figures B.20-B.22 show the same chirp + burst signal analyzed with $M = 256$ at three overlap levels, zoomed to the burst region. White dashed lines mark the true burst extent (±2σ = 59-61 s).
 
-![Figure B.20 - 0% overlap: burst visible but gaps from tapering](../results/graphs/lab4/figure_B_20.png)
+![Figure B.20 - 0% overlap: burst visible but gaps from tapering](../../results/graphs/lab4/figure_B_20.png)
 
-![Figure B.21 - 50% overlap: COLA satisfied, uniform coverage](../results/graphs/lab4/figure_B_21.png)
+![Figure B.21 - 50% overlap: COLA satisfied, uniform coverage](../../results/graphs/lab4/figure_B_21.png)
 
-![Figure B.22 - 75% overlap: smoother but no sharper than 50%](../results/graphs/lab4/figure_B_22.png)
+![Figure B.22 - 75% overlap: smoother but no sharper than 50%](../../results/graphs/lab4/figure_B_22.png)
 
 **Table B.15 - Overlap comparison**
 
@@ -1143,13 +1143,13 @@ At 0% overlap, the Hann window multiplies edge samples by zero - features at seg
 
 Figure B.23 shows the chirp + alpha burst in the time domain, zoomed to the burst region.
 
-![Figure B.23 - Chirp + alpha burst, time domain (zoomed)](../results/graphs/lab4/figure_B_23.png)
+![Figure B.23 - Chirp + alpha burst, time domain (zoomed)](../../results/graphs/lab4/figure_B_23.png)
 
 Figures B.24-B.25 show the same signal analyzed with a short window and a long window, in dual-stack (linear + dB). The dB scale is essential here: the burst ($A = 3$) and the chirp ($A = 1$) differ in amplitude, and the dB panel reveals how far the burst energy smears beyond its true extent. White dashed lines mark the true burst extent.
 
-![Figure B.24 - Short window M=125 (0.5 s): burst localized, chirp smeared](../results/graphs/lab4/figure_B_24.png)
+![Figure B.24 - Short window M=125 (0.5 s): burst localized, chirp smeared](../../results/graphs/lab4/figure_B_24.png)
 
-![Figure B.25 - Long window M=1250 (5.0 s): chirp sharp, burst smeared far beyond true extent](../results/graphs/lab4/figure_B_25.png)
+![Figure B.25 - Long window M=1250 (5.0 s): chirp sharp, burst smeared far beyond true extent](../../results/graphs/lab4/figure_B_25.png)
 
 **Table B.16 - Multi-scale comparison**
 
@@ -1255,23 +1255,23 @@ Full source: `src/lab5_resolution/lab5.py`.
 
 Figure B.26 shows the time-domain beat patterns at each separation.
 
-![Figure B.26 - Two-tone beat patterns at each separation](../results/graphs/lab5/figure_B_26.png)
+![Figure B.26 - Two-tone beat patterns at each separation](../../results/graphs/lab5/figure_B_26.png)
 
 **$\Delta = 0.5$ Hz** (Figure B.27) - below all windows' resolution limits. All three show one merged band. No window can separate tones 0.5 Hz apart at $M = 256$ (1.024 s).
 
-![Figure B.27 - Δ = 0.5 Hz: all windows merged](../results/graphs/lab5/figure_B_27.png)
+![Figure B.27 - Δ = 0.5 Hz: all windows merged](../../results/graphs/lab5/figure_B_27.png)
 
 **$\Delta = 2.0$ Hz** (Figure B.28) - above Rectangular's limit (0.977 Hz), just above Hann's limit (1.953 Hz), below Blackman's limit (2.930 Hz). Rectangular clearly shows two lines; Hann shows two lines at the borderline; Blackman still shows one merged band.
 
-![Figure B.28 - Δ = 2.0 Hz: Rectangular and Hann resolved, Blackman merged](../results/graphs/lab5/figure_B_28.png)
+![Figure B.28 - Δ = 2.0 Hz: Rectangular and Hann resolved, Blackman merged](../../results/graphs/lab5/figure_B_28.png)
 
 **$\Delta = 3.0$ Hz** (Figure B.29) - above Rectangular's and Hann's limits, just above Blackman's limit (2.930 Hz). All three windows now show two lines, with Blackman just barely splitting.
 
-![Figure B.29 - Δ = 3.0 Hz: all windows resolved](../results/graphs/lab5/figure_B_29.png)
+![Figure B.29 - Δ = 3.0 Hz: all windows resolved](../../results/graphs/lab5/figure_B_29.png)
 
 **$\Delta = 5.0$ Hz** (Figure B.30) - well above all limits. All three windows show two clean, well-separated horizontal lines.
 
-![Figure B.30 - Δ = 5.0 Hz: all windows clearly resolved](../results/graphs/lab5/figure_B_30.png)
+![Figure B.30 - Δ = 5.0 Hz: all windows clearly resolved](../../results/graphs/lab5/figure_B_30.png)
 
 ### Verification
 
@@ -1417,11 +1417,11 @@ Full source: `src/lab6_autocorrelation/lab6.py`.
 
 Figure B.31 shows the tone-in-noise signal in the time domain. The tone ($A = 0.5$) is invisible in the noise ($\sigma = 1.0$) - identical to Lab 2's observation.
 
-![Figure B.31 - Tone buried in noise, time domain](../results/graphs/lab6/figure_B_31.png)
+![Figure B.31 - Tone buried in noise, time domain](../../results/graphs/lab6/figure_B_31.png)
 
 Figure B.32 shows the autocorrelation in two views. The top panel shows the full range - the lag-0 spike dominates ($r[0] = 17\,101$, equal to $\sum |x[n]|^2$). The bottom panel zooms into the first 10 periods. Periodic peaks emerge at lags of 25 samples (0.10 s) and multiples - marked by red dashed lines. The noise contributes only at lag 0; at all other lags, the tone's periodicity is exposed.
 
-![Figure B.32 - Autocorrelation: lag-0 energy spike and periodic peaks](../results/graphs/lab6/figure_B_32.png)
+![Figure B.32 - Autocorrelation: lag-0 energy spike and periodic peaks](../../results/graphs/lab6/figure_B_32.png)
 
 Verification: $r[0] = 17\,101.30$, $\sum |x[n]|^2 = 17\,101.30$. Exact match (Equation (A.45)).
 
@@ -1429,7 +1429,7 @@ Verification: $r[0] = 17\,101.30$, $\sum |x[n]|^2 = 17\,101.30$. Exact match (Eq
 
 Figure B.33 shows the power spectrum computed two ways: directly as $|X[k]|^2/N$, and via the DFT of the circular autocorrelation. The dual-stack (linear + dB) overlay shows perfect agreement - the two curves are indistinguishable. The dB scale is used to show that the match holds across the full dynamic range, not just at the peak.
 
-![Figure B.33 - Wiener-Khinchin: |X[k]|² vs DFT{r[l]}](../results/graphs/lab6/figure_B_33.png)
+![Figure B.33 - Wiener-Khinchin: |X[k]|² vs DFT{r[l]}](../../results/graphs/lab6/figure_B_33.png)
 
 Maximum absolute error: $0.000000$. Relative error: $1.02 \times 10^{-16}$ (machine precision). The Wiener-Khinchin theorem (Equation (A.47)) is verified exactly.
 
@@ -1437,11 +1437,11 @@ Maximum absolute error: $0.000000$. Relative error: $1.02 \times 10^{-16}$ (mach
 
 Figure B.34 shows two tones in the time domain: $\phi = 0$ (starts at peak) and $\phi = \pi$ (starts at trough). They are clearly different signals - the waveforms are mirror images.
 
-![Figure B.34 - Two tones with different phases, time domain](../results/graphs/lab6/figure_B_34.png)
+![Figure B.34 - Two tones with different phases, time domain](../../results/graphs/lab6/figure_B_34.png)
 
 Figure B.35 shows their autocorrelations overlaid. The two curves are identical - the dashed line sits exactly on the solid line. Maximum difference: $3.04 \times 10^{-12}$ (machine precision).
 
-![Figure B.35 - Autocorrelation of φ=0 vs φ=π: identical](../results/graphs/lab6/figure_B_35.png)
+![Figure B.35 - Autocorrelation of φ=0 vs φ=π: identical](../../results/graphs/lab6/figure_B_35.png)
 
 Phase is gone. The autocorrelation tells you *which* frequency is present (10 Hz) and *how strong* it is, but not *when it starts* or *what phase it has*. Their power spectra $|X[k]|^2$ are also identical (difference: $4.66 \times 10^{-10}$).
 
@@ -1484,11 +1484,11 @@ rho_noshr = np.corrcoef(x1_no, x2_no)[0, 1]               # should be ≈ 0
 
 Figure B.36 shows the shared-tone case. The time domain (top) shows two noisy signals that roughly track each other - the shared 10 Hz tone is buried but present. The cross-correlation (bottom) reveals it: periodic peaks at 0.1 s intervals (= 1/10 Hz), with ρ = 0.1068. The shared tone survives cross-correlation; the independent noise cancels.
 
-![Figure B.36 - Shared 10 Hz tone: time domain + cross-correlation](../results/graphs/lab6/figure_B_36.png)
+![Figure B.36 - Shared 10 Hz tone: time domain + cross-correlation](../../results/graphs/lab6/figure_B_36.png)
 
 Figure B.37 shows the no-shared case. The time domain (top two panels) shows two unrelated signals - x₁ at 10 Hz and x₂ at 20 Hz, each with independent noise. The cross-correlation (bottom) is flat noise with no periodic structure, ρ = -0.0062 (effectively zero).
 
-![Figure B.37 - No shared component: time domain + cross-correlation](../results/graphs/lab6/figure_B_37.png)
+![Figure B.37 - No shared component: time domain + cross-correlation](../../results/graphs/lab6/figure_B_37.png)
 
 **Table B.23 - Cross-correlation Pearson coefficients**
 
@@ -1648,17 +1648,17 @@ Full source: `src/lab7_wvd/lab7.py`, `src/common/wvd.py`.
 
 Figure B.39 shows the chirp in the time domain.
 
-![Figure B.39 - Linear chirp 10-80 Hz, time domain](../results/graphs/lab7/figure_B_39.png)
+![Figure B.39 - Linear chirp 10-80 Hz, time domain](../../results/graphs/lab7/figure_B_39.png)
 
 Figure B.40 compares the STFT (left) and WVD (right) in dual-stack (linear top, dB bottom). The STFT shows a thick, blurred diagonal - the Hann window ($M = 64$, 0.256 s) smears the trajectory by $\Delta f = 2 \times 250/64 = 7.8$ Hz. The WVD shows a razor-sharp diagonal tracking the instantaneous frequency $f_{\text{inst}}(t) = 10 + 35t$ Hz exactly. The dB panels reveal the contrast: the STFT has horizontal striping from the window's side lobes; the WVD has only minor ripples near the edges.
 
-![Figure B.40 - STFT vs WVD on single chirp (dual-stack)](../results/graphs/lab7/figure_B_40.png)
+![Figure B.40 - STFT vs WVD on single chirp (dual-stack)](../../results/graphs/lab7/figure_B_40.png)
 
 **Experiment B - Cross-terms.**
 
 Figure B.41 shows the chirp + tone signal in the time domain.
 
-![Figure B.41 - Chirp (10-90 Hz) + tone (40 Hz), time domain](../results/graphs/lab7/figure_B_41.png)
+![Figure B.41 - Chirp (10-90 Hz) + tone (40 Hz), time domain](../../results/graphs/lab7/figure_B_41.png)
 
 Figure B.42 compares the STFT and WVD. The STFT (left) shows a clean superposition: blurred diagonal (chirp) and horizontal line (tone) with no interference. The WVD (right) shows both components sharply, but with a strong oscillating cross-term at the midpoint frequency:
 
@@ -1667,17 +1667,17 @@ Figure B.42 compares the STFT and WVD. The STFT (left) shows a clean superpositi
 
 The dB panel makes the cross-term's oscillatory structure especially visible - concentric ripples emanating from the midpoint trajectory.
 
-![Figure B.42 - STFT (clean) vs WVD (cross-terms) for chirp + tone](../results/graphs/lab7/figure_B_42.png)
+![Figure B.42 - STFT (clean) vs WVD (cross-terms) for chirp + tone](../../results/graphs/lab7/figure_B_42.png)
 
 **Experiment C - Real vs analytic signal.**
 
 Figure B.43 shows the 30 Hz tone in the time domain.
 
-![Figure B.43 - 30 Hz tone, time domain](../results/graphs/lab7/figure_B_43.png)
+![Figure B.43 - 30 Hz tone, time domain](../../results/graphs/lab7/figure_B_43.png)
 
 Figure B.44 compares the WVD of the real signal (left) vs the analytic signal (right). The real-signal WVD is corrupted by heavy interference across the entire plane - the DC self-ghost from cross-terms between $+30$ Hz and $-30$ Hz, oscillating at $2 \times 30 = 60$ Hz. The analytic-signal WVD shows a clean horizontal line at 30 Hz with no ghost.
 
-![Figure B.44 - Real signal WVD (DC ghost) vs analytic signal WVD (clean)](../results/graphs/lab7/figure_B_44.png)
+![Figure B.44 - Real signal WVD (DC ghost) vs analytic signal WVD (clean)](../../results/graphs/lab7/figure_B_44.png)
 
 ### Verification
 
@@ -1789,11 +1789,11 @@ Full source: `src/lab8_spwvd/lab8.py`.
 
 Figure B.45 shows the chirp + tone signal in the time domain (same as Lab 7 Figure B.41).
 
-![Figure B.45 - Chirp + tone time domain](../results/graphs/lab8/figure_B_45.png)
+![Figure B.45 - Chirp + tone time domain](../../results/graphs/lab8/figure_B_45.png)
 
 Figure B.46 shows the WVD → PWVD → SPWVD progression in dual-stack (linear left, dB right):
 
-![Figure B.46 - WVD → PWVD → SPWVD progression](../results/graphs/lab8/figure_B_46.png)
+![Figure B.46 - WVD → PWVD → SPWVD progression](../../results/graphs/lab8/figure_B_46.png)
 
 - **Raw WVD (top):** sharp chirp diagonal and tone horizontal line, but the midpoint cross-term dominates - oscillating concentric ripples between the two components.
 - **PWVD (middle):** the lag window $h$ = Hann 51 (0.204 s) smooths the frequency axis. The frequency structure is slightly blurred, but the **time-oscillating cross-term survives** - the oscillations along the time axis are still clearly visible. This confirms Section A.8.2: the PWVD smooths only in frequency, so time-oscillating ghosts pass through unaffected.
@@ -1803,7 +1803,7 @@ Figure B.46 shows the WVD → PWVD → SPWVD progression in dual-stack (linear l
 
 Figure B.47 shows two extreme SPWVD tunings:
 
-![Figure B.47 - SPWVD two-knob sweep](../results/graphs/lab8/figure_B_47.png)
+![Figure B.47 - SPWVD two-knob sweep](../../results/graphs/lab8/figure_B_47.png)
 
 - **Case 1 (h=101, g=5; top):** long lag window provides very high frequency resolution - the 40 Hz tone is a thin line. But the short time window (0.020 s) fails the minimum smoothing rule (Equation (A.73): $T_g \geq 1/\Delta f$). The difference frequency between chirp and tone ranges from 10 to 50 Hz, requiring $T_g \geq 0.10$ s. Since 0.020 s < 0.10 s, time-oscillating cross-terms survive.
 - **Case 2 (h=25, g=31; bottom):** long time window (0.124 s > 0.10 s) satisfies the minimum smoothing rule - time-oscillating cross-terms are **fully suppressed**. But the short lag window blurs the frequency axis - the tone is smeared into a thick band.
@@ -1814,11 +1814,11 @@ This demonstrates the independent control: $h$ affects only frequency resolution
 
 Figure B.48 shows two broadband impulses in the time domain at t = 0.5 s and t = 1.5 s.
 
-![Figure B.48 - Two impulses time domain](../results/graphs/lab8/figure_B_48.png)
+![Figure B.48 - Two impulses time domain](../../results/graphs/lab8/figure_B_48.png)
 
 Figure B.49 shows the WVD → PWVD → SPWVD progression for the two-impulse signal:
 
-![Figure B.49 - Two impulses: frequency-oscillating ghosts](../results/graphs/lab8/figure_B_49.png)
+![Figure B.49 - Two impulses: frequency-oscillating ghosts](../../results/graphs/lab8/figure_B_49.png)
 
 - **Raw WVD (top):** two vertical stripes (the impulses) with a frequency-oscillating cross-term at the midpoint t = 1.0 s - visible as ripples oscillating across the frequency axis in the dB panel.
 - **PWVD (middle):** the lag window $h$ smooths in frequency - the **frequency-oscillating ghost is suppressed**. This is the half of the duality that Experiment A couldn't show: the PWVD DOES work when the ghosts oscillate in the axis it smooths.
@@ -2026,11 +2026,11 @@ Full source: `src/appendix_b2/cv_archetypes.py`.
 
 Figure AB2.1 shows the time domain (left, first 2 seconds) and power spectrum (right, dB) for each archetype:
 
-![Figure AB2.1 - Six archetypes: time domain and power spectrum](../results/graphs/appendix_b2/figure_B2_01.png)
+![Figure AB2.1 - Six archetypes: time domain and power spectrum](../../results/graphs/appendix_b2/figure_B2_01.png)
 
 Figure AB2.2 shows the CV values as a bar chart, with the CV = 1.0 reference line (exponential / noise):
 
-![Figure AB2.2 - CV of bin power for the six signal archetypes](../results/graphs/appendix_b2/figure_B2_02.png)
+![Figure AB2.2 - CV of bin power for the six signal archetypes](../../results/graphs/appendix_b2/figure_B2_02.png)
 
 **Table AB2.2 - CV of the six signal archetypes**
 

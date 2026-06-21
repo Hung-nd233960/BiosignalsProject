@@ -184,7 +184,7 @@ plot_time_domain(t, x,
 )
 ```
 
-![Figure C.1 - Channel CZ, full recording (1140 s)](../results/graphs/volume_c/c1/figure_C_01.png)
+![Figure C.1 - Channel CZ, full recording (1140 s)](../../results/graphs/volume_c/c1/figure_C_01.png)
 
 **Zoomed to first 30 seconds.** The `t_range` parameter selects a time window:
 
@@ -198,7 +198,7 @@ plot_time_domain(t, x,
 )
 ```
 
-![Figure C.2 - Channel CZ, first 30 s](../results/graphs/volume_c/c1/figure_C_02.png)
+![Figure C.2 - Channel CZ, first 30 s](../../results/graphs/volume_c/c1/figure_C_02.png)
 
 Figure C.2 shows slow, high-amplitude oscillations in the delta range with a **bursty pattern**: periods of high activity (100-150 µV peak-to-peak) separated by quieter intervals (20-50 µV). This pattern is consistent with discontinuous neonatal EEG activity (Appendix C).
 
@@ -220,7 +220,7 @@ for i, ch in enumerate(rep_channels):
 axes[-1].set_xlabel("Time (s)")
 ```
 
-![Figure C.3 - Six representative channels, first 30 s](../results/graphs/volume_c/c1/figure_C_03.png)
+![Figure C.3 - Six representative channels, first 30 s](../../results/graphs/volume_c/c1/figure_C_03.png)
 
 The burst pattern is **synchronous across all regions** - frontal (Fp1), central (C3), parietal (P3), occipital (O1), and temporal (T3) all show high-amplitude bursts at the same times. This is a whole-brain phenomenon, not a channel-specific artifact.
 
@@ -239,7 +239,7 @@ for i, ch in enumerate(aux_channels):
 axes_aux[-1].set_xlabel("Time (s)")
 ```
 
-![Figure C.4 - Auxiliary channels (25+, 26+, 27+), first 30 s](../results/graphs/volume_c/c1/figure_C_04.png)
+![Figure C.4 - Auxiliary channels (25+, 26+, 27+), first 30 s](../../results/graphs/volume_c/c1/figure_C_04.png)
 
 Channel 25+ shows low-amplitude, regular oscillations consistent with **ECG** (cardiac rhythm). Channel 26+ shows similar low-amplitude activity (second ECG lead or EMG). Channel 27+ has higher amplitude with slower morphology, consistent with **EOG** (eye movement).
 
@@ -296,11 +296,11 @@ for name, power in band_power.items():
 
 Figure C.5 shows the Welch PSD in dual-stack. The linear panel (top, in µV²/Hz) shows the delta peak dominating - everything above 4 Hz is compressed to near-zero on this scale. The dB panel (bottom, in dB relative to 1 µV²/Hz - meaning $10\log_{10}(\text{PSD} / 1\,\mu\text{V}^2/\text{Hz})$, so 0 dB corresponds to a power spectral density of exactly 1 µV²/Hz) reveals the full structure: a peak at 0.6 Hz, steep rolloff through theta and alpha, and a flat noise floor above ~30 Hz. The dB scale is necessary because delta power exceeds theta power by a factor of 14 - without it, the higher bands are invisible.
 
-![Figure C.5 - Welch PSD, channel CZ (linear + dB)](../results/graphs/volume_c/c1/figure_C_05.png)
+![Figure C.5 - Welch PSD, channel CZ (linear + dB)](../../results/graphs/volume_c/c1/figure_C_05.png)
 
 Figure C.6 shows the band power distribution as a bar chart.
 
-![Figure C.6 - Band power distribution, channel CZ](../results/graphs/volume_c/c1/figure_C_06.png)
+![Figure C.6 - Band power distribution, channel CZ](../../results/graphs/volume_c/c1/figure_C_06.png)
 
 **Table C.3 - Band power, channel CZ**
 
@@ -327,7 +327,7 @@ for ch in EEG_CHANNELS:                                    # all 19 standard cha
     pct = {band: 100 * power / total for band, power in bp.items()}
 ```
 
-![Figure C.7 - Band power distribution across all EEG channels](../results/graphs/volume_c/c1/figure_C_07.png)
+![Figure C.7 - Band power distribution across all EEG channels](../../results/graphs/volume_c/c1/figure_C_07.png)
 
 The delta dominance is **uniform across the entire scalp**: every channel has 91-95% delta power, 4-7% theta, ~1% alpha, and negligible beta and gamma. The standard deviation across channels is 0.9 percentage points - effectively no regional variation. CZ (92%) is representative, not an outlier.
 
@@ -401,7 +401,7 @@ P = np.abs(X[pos])**2 / N                                  # power spectrum (µV
 
 Figure C.8 shows the windowed DFT in dual-stack, with EEG band boundaries marked.
 
-![Figure C.8 - Windowed DFT of CZ, Hann, N=228000](../results/graphs/volume_c/c2/figure_C_08.png)
+![Figure C.8 - Windowed DFT of CZ, Hann, N=228000](../../results/graphs/volume_c/c2/figure_C_08.png)
 
 ### C.2.2 Log-Log PSD: Is Delta Rhythmic or 1/f Noise?
 
@@ -425,7 +425,7 @@ slope, intercept, r_value, _, _ = linregress(
 # slope = exponent α in PSD ∝ f^α (negative = power decreases with frequency)
 ```
 
-![Figure C.9 - Log-log PSD with 1/f fit](../results/graphs/volume_c/c2/figure_C_09.png)
+![Figure C.9 - Log-log PSD with 1/f fit](../../results/graphs/volume_c/c2/figure_C_09.png)
 
 **Result:** the 1/f fit gives **slope = -3.18** with **R² = 0.987** - a steep power-law decay, closer to $1/f^3$ than the $1/f$ or $1/f^2$ commonly reported for adult EEG. The fit is excellent (R² = 0.987), meaning the 5-40 Hz range is well described by a single power law.
 
@@ -456,7 +456,7 @@ freqs, psd = sp_signal.welch(x, fs=fs,
                               window="hann")
 ```
 
-![Figure C.10 - Delta/theta zoom, 20 s segments](../results/graphs/volume_c/c2/figure_C_10.png)
+![Figure C.10 - Delta/theta zoom, 20 s segments](../../results/graphs/volume_c/c2/figure_C_10.png)
 
 The zoomed PSD reveals **local maxima** within the delta band:
 
@@ -483,7 +483,7 @@ for name, win in [("Hann", "hann"), ("Blackman", "blackman")]:
     # ... plot both on the same axes
 ```
 
-![Figure C.11 - Hann vs Blackman on CZ](../results/graphs/volume_c/c2/figure_C_11.png)
+![Figure C.11 - Hann vs Blackman on CZ](../../results/graphs/volume_c/c2/figure_C_11.png)
 
 The two curves are nearly identical across the entire spectrum. The Blackman window's deeper side-lobe suppression (-58 dB vs -31.5 dB) does not produce a visibly different PSD.
 
@@ -537,7 +537,7 @@ f_stft, t_stft, Sxx = sp_signal.spectrogram(              # STFT via scipy
 # t_stft: time axis (s)
 ```
 
-![Figure C.12 - Full-recording STFT spectrogram, CZ](../results/graphs/volume_c/c3/figure_C_12.png)
+![Figure C.12 - Full-recording STFT spectrogram, CZ](../../results/graphs/volume_c/c3/figure_C_12.png)
 
 The dB panel (bottom) reveals the answer to C.2's open question: **delta power is not continuous.** It comes in bursts - vertical stripes of high power in the 0.5-4 Hz range, separated by quieter intervals. The burst pattern is visible across the entire 19-minute recording, though its intensity varies. The linear panel (top) shows that the strongest bursts reach 25,000 µV²/Hz while the quiet intervals drop below 1,000 - a max/min ratio of 126x. The dB scale is essential here to see both the bursts and the quiet periods on the same plot.
 
@@ -553,7 +553,7 @@ f_stft, t_stft, Sxx = sp_signal.spectrogram(
 # Δf = 0.5 Hz (coarser than C.3.1, but Δt = 2.0 s is better for burst timing)
 ```
 
-![Figure C.13 - Zoomed spectrogram, 0-60 s](../results/graphs/volume_c/c3/figure_C_13.png)
+![Figure C.13 - Zoomed spectrogram, 0-60 s](../../results/graphs/volume_c/c3/figure_C_13.png)
 
 The burst structure is now clearly resolved in time. Individual bursts last approximately 2-5 seconds and recur every 5-10 seconds. The frequency content during bursts extends from 0.5 Hz up to about 6-8 Hz (into the theta band), while the quiet intervals show a flat, low-power baseline.
 
@@ -570,7 +570,7 @@ for M in [int(1.0 * fs), int(5.0 * fs)]:
     )
 ```
 
-![Figure C.14 - Heisenberg comparison on CZ](../results/graphs/volume_c/c3/figure_C_14.png)
+![Figure C.14 - Heisenberg comparison on CZ](../../results/graphs/volume_c/c3/figure_C_14.png)
 
 Left column (1.0 s window): individual bursts are well-resolved in time, but delta and theta merge into one broad band. Right column (5.0 s window): delta and theta are separated, but bursts smear across 5-second time steps. Neither captures both the burst timing and the frequency structure simultaneously - confirming the STFT's fundamental limitation (Equation (A.40)), now demonstrated on real data rather than a model signal.
 
@@ -585,7 +585,7 @@ delta_power = np.sum(Sxx[delta_mask, :], axis=0) * df      # µV² per time step
 theta_power = np.sum(Sxx[theta_mask, :], axis=0) * df      # µV² per time step
 ```
 
-![Figure C.15 - Delta and theta power over time](../results/graphs/volume_c/c3/figure_C_15.png)
+![Figure C.15 - Delta and theta power over time](../../results/graphs/volume_c/c3/figure_C_15.png)
 
 **Table C.10 - Delta power time course statistics**
 
@@ -609,7 +609,7 @@ burst_threshold = 2.0 * median_delta                       # 3479 µV²
 # Burst = time steps where delta_power > burst_threshold
 ```
 
-![Figure C.16 - Time domain with delta power overlay](../results/graphs/volume_c/c3/figure_C_16.png)
+![Figure C.16 - Time domain with delta power overlay](../../results/graphs/volume_c/c3/figure_C_16.png)
 
 ### Verification
 
@@ -645,11 +645,11 @@ for name, win in [("Hann", "hann"), ("Hamming", "hamming"), ("Blackman", "blackm
         # median_rel = typical time step; max_rel = worst case (burst edges)
 ```
 
-![Figure C.17 - Delta power: Hann vs Hamming vs Blackman](../results/graphs/volume_c/c3/figure_C_17.png)
+![Figure C.17 - Delta power: Hann vs Hamming vs Blackman](../../results/graphs/volume_c/c3/figure_C_17.png)
 
 Figure C.18 shows the actual spectrograms in dual-stack (linear top, dB bottom) side by side with shared colorbars per row:
 
-![Figure C.18 - Spectrogram comparison: Hann vs Hamming vs Blackman](../results/graphs/volume_c/c3/figure_C_18.png)
+![Figure C.18 - Spectrogram comparison: Hann vs Hamming vs Blackman](../../results/graphs/volume_c/c3/figure_C_18.png)
 
 The three spectrograms are visually indistinguishable. The burst pattern, timing, frequency extent, and quiet intervals are identical across all three windows.
 
@@ -729,7 +729,7 @@ for ch in ["25+", "26+", "27+"]:
     # Peak frequency and total power characterize the channel
 ```
 
-![Figure C.19 - Auxiliary channel PSDs (dual-stack)](../results/graphs/volume_c/c4/figure_C_19.png)
+![Figure C.19 - Auxiliary channel PSDs (dual-stack)](../../results/graphs/volume_c/c4/figure_C_19.png)
 
 **Table C.14 - Auxiliary channel spectral characteristics**
 
@@ -755,7 +755,7 @@ for ch in ["25+", "26+", "27+"]:
     r_full = np.correlate(x_cz[:seg], x_aux[:seg], mode="full")  # Equation (A.57)
 ```
 
-![Figure C.20 - Cross-correlation: auxiliary channels vs CZ](../results/graphs/volume_c/c4/figure_C_20.png)
+![Figure C.20 - Cross-correlation: auxiliary channels vs CZ](../../results/graphs/volume_c/c4/figure_C_20.png)
 
 **Table C.15 - Cross-correlation results**
 
@@ -791,7 +791,7 @@ cv = std_power / mean_power                                # coefficient of vari
 # CV ≈ 1.0 → consistent with exponential; CV ≠ 1.0 → deviates
 ```
 
-![Figure C.21 - Noise floor verification: exponential distribution test](../results/graphs/volume_c/c4/figure_C_21.png)
+![Figure C.21 - Noise floor verification: exponential distribution test](../../results/graphs/volume_c/c4/figure_C_21.png)
 
 **Table C.16 - Spectral distribution test results (alpha band)**
 
@@ -885,7 +885,7 @@ flat_count = np.sum(diff_max < 0.01)                      # 44 flat samples
 
 Figure C.22 shows this segment. The signal clips flat at ~250 µV for over 0.3 s - this is **amplifier saturation**, not a physiological burst. 44 samples have near-zero derivative (|Δx| < 0.01 µV), confirming the plateau. The strongest burst by delta power is the worst artifact in the recording.
 
-![Figure C.22 - REJECTED: strongest burst at t = 842.5 s (amplifier saturation)](../results/graphs/volume_c/c5/figure_C_22.png)
+![Figure C.22 - REJECTED: strongest burst at t = 842.5 s (amplifier saturation)](../../results/graphs/volume_c/c5/figure_C_22.png)
 
 **Step 2: fall back to the 75th percentile.** Instead of the maximum (likely artifactual), we select the burst at the 75th percentile of burst power - strong enough to be clearly above threshold, not so extreme it is an artifact:
 
@@ -909,7 +909,7 @@ t_peak = t_stft[target_idx]                               # t = 65.0 s
 
 Figure C.23 shows the accepted segment: two clean delta cycles (~1 Hz) with ±150 µV amplitude, no clipping, no discontinuities.
 
-![Figure C.23 - ACCEPTED: CZ burst segment, 64.0-66.0 s](../results/graphs/volume_c/c5/figure_C_23.png)
+![Figure C.23 - ACCEPTED: CZ burst segment, 64.0-66.0 s](../../results/graphs/volume_c/c5/figure_C_23.png)
 
 ### C.5.2 STFT baseline
 
@@ -937,7 +937,7 @@ Sxx_l = np.abs(Zxx_l)**2
 | Duration (s) | 0.32 | 1.0 |
 | $\Delta f$ (Hz) | 3.12 | 1.00 |
 
-![Figure C.24 - STFT Heisenberg tradeoff on burst segment](../results/graphs/volume_c/c5/figure_C_24.png)
+![Figure C.24 - STFT Heisenberg tradeoff on burst segment](../../results/graphs/volume_c/c5/figure_C_24.png)
 
 The short window (left) resolves the two delta peaks in time but merges the delta and theta bands. The long window (right) separates delta from theta but smears the burst timing. Neither can give both. This is the Heisenberg limit from Lab 4.
 
@@ -953,7 +953,7 @@ wvd, t_wvd, f_wvd = wigner_ville(x_seg, fs, n_fft=512)
 # Negative values: 49.1% of all bins
 ```
 
-![Figure C.25 - Raw WVD of burst segment](../results/graphs/volume_c/c5/figure_C_25.png)
+![Figure C.25 - Raw WVD of burst segment](../../results/graphs/volume_c/c5/figure_C_25.png)
 
 The linear panel (top) shows energy concentrated at 0-4 Hz with sharper time boundaries than the STFT - the burst onset is more precisely localized. But the dB panel (bottom) reveals the problem: 49% of values are negative (the WVD is not a true power distribution), and oscillating cross-term patterns fill the time-frequency plane. The representation is sharper but unreadable.
 
@@ -983,7 +983,7 @@ spwvd, t_sp, f_sp = smoothed_pseudo_wigner_ville(
 | h (lag) | Hann 101 | 0.505 | Frequency smoothing - suppress frequency-oscillating ghosts |
 | g (time) | Hann 21 | 0.105 | Time smoothing - suppress time-oscillating ghosts |
 
-![Figure C.26 - SPWVD of burst segment (cross-terms suppressed)](../results/graphs/volume_c/c5/figure_C_26.png)
+![Figure C.26 - SPWVD of burst segment (cross-terms suppressed)](../../results/graphs/volume_c/c5/figure_C_26.png)
 
 The linear panel (top) is the cleanest time-frequency view of the burst. Delta energy (0-4 Hz) concentrates in two lobes matching the two delta cycles in the time domain, with tighter temporal bounds than the STFT. The energy fades between cycles as the signal crosses zero - a feature the STFT could not resolve.
 
@@ -998,7 +998,7 @@ Figure C.27 places all three methods side by side on the same segment:
 # all computed on the same x_seg, same N_FFT=512
 ```
 
-![Figure C.27 - STFT vs WVD vs SPWVD on CZ burst segment](../results/graphs/volume_c/c5/figure_C_27.png)
+![Figure C.27 - STFT vs WVD vs SPWVD on CZ burst segment](../../results/graphs/volume_c/c5/figure_C_27.png)
 
 | Method | Time resolution | Frequency resolution | Cross-terms | Readable? |
 | --- | --- | --- | --- | --- |
@@ -1024,7 +1024,7 @@ Lab 8 demonstrated independent two-knob control on model signals. Does it work o
 | 1 - minimal smoothing | Hann 51 (0.255 s) | Hann 11 (0.055 s) | Sharper, more residual ghosts |
 | 2 - heavy smoothing | Hann 151 (0.755 s) | Hann 41 (0.205 s) | Cleaner, approaches STFT blur |
 
-![Figure C.28 - SPWVD two-knob sweep on real EEG](../results/graphs/volume_c/c5/figure_C_28.png)
+![Figure C.28 - SPWVD two-knob sweep on real EEG](../../results/graphs/volume_c/c5/figure_C_28.png)
 
 The two-knob tradeoff confirmed from Lab 8 holds on real EEG: lighter smoothing preserves more time-frequency detail but leaves visible cross-term remnants; heavier smoothing suppresses artifacts but loses the sharpness advantage over the STFT. The optimal tuning (h=101, g=21 from C.5.4) is a compromise between these extremes.
 
