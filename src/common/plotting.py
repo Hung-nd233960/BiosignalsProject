@@ -37,12 +37,17 @@ def save_figure(fig, lab_number, fig_id, raster_only=False):
     fig_id      : str — figure identifier (e.g. "01", "02a")
     raster_only : bool — if True, skip SVG export (for spectrograms/heatmaps)
     """
-    lab_dir = os.path.join(GRAPH_DIR, f"lab{lab_number}")  # target directory
+    if isinstance(lab_number, str):
+        lab_dir = os.path.join(GRAPH_DIR, lab_number)     # e.g. "volume_c/c3"
+        vol_prefix = lab_number.split("/")[0].split("_")[-1].upper()  # "C" from "volume_c/c3"
+    else:
+        lab_dir = os.path.join(GRAPH_DIR, f"lab{lab_number}")
+        vol_prefix = "B"
     os.makedirs(lab_dir, exist_ok=True)  # ensure it exists
     formats = ["png"] if raster_only else FIGURE_FORMATS  # skip SVG for heatmaps
     paths = []  # collect saved paths
     for fmt in formats:  # save in each format
-        filename = f"figure_B_{fig_id}.{fmt}"  # construct filename
+        filename = f"figure_{vol_prefix}_{fig_id}.{fmt}"  # construct filename
         filepath = os.path.join(lab_dir, filename)  # full path
         fig.savefig(filepath, dpi=DPI, bbox_inches="tight")  # save
         print(f"Saved: {filepath}")  # confirm to user

@@ -2,7 +2,7 @@
 
 We are undergraduate Biomedical Engineering students taking a Digital Biosignal Processing class. This is the final report on signal processing. Our team chose to study the basics of the DFT and STFT, then expand into the Wigner-Ville Distribution (WVD) and Smoothed Pseudo Wigner-Ville Distribution (SPWVD) as the advanced topic to learn and apply. The application target is real EEG data.
 
-The report is split into three volumes (see `Thesis_Table_of_Contents.md`):
+The report is split into three volumes (see `TABLE_OF_CONTENTS.md`):
 
 - **Volume A** — Theory (A.1–A.8) + Appendix A (signal taxonomy)
 - **Volume B** — Labs (B.1–B.8) with EEG-realism signal constraints
@@ -17,7 +17,8 @@ A unified slide deck accompanies all three volumes.
 - **Academic but honest.** Serious enough for a university report, but written as students explaining concepts we learned — not as textbook authors. No false authority; if something is approximate or heuristic, say so.
 - **Neutral.** No hype, no hedging. State what the method does, what it costs, and what we observed.
 - **Discrete realm.** All mathematical formulas, derivations, and interpretations are explicitly discrete-time and discrete-frequency. Use summations (not integrals), sample indices (not continuous time), and normalized/discrete frequency. The continuous-time form may be mentioned for motivation, but the working formula is always the discrete version.
-- **No "gap callouts" in the reports.** The gap framing ("Signals & Systems gives you X, this section adds Y") is internal planning language in `Thesis_Table_of_Contents.md`. Do NOT include it in the actual volumes (volume_A.md, volume_B.md, volume_C.md) or slides. The reports teach the material directly without referencing what the reader is assumed to be missing.
+- **No "gap callouts" in the reports.** The gap framing ("Signals & Systems gives you X, this section adds Y") is internal planning language in `TABLE_OF_CONTENTS.md`. Do NOT include it in the actual volumes (volume_A.md, volume_B.md, volume_C.md) or slides. The reports teach the material directly without referencing what the reader is assumed to be missing.
+- **No `>` blockquotes in submitted reports.** Blockquotes (`> text`) are internal editorial notes and planning reminders. They must be removed before submission. The `prettier.py` script strips them automatically.
 
 ---
 
@@ -32,11 +33,12 @@ A unified slide deck accompanies all three volumes.
 
 ## Reference Files
 
-- `Thesis_Table_of_Contents.md` — master plan with all section outlines, lab templates, and internal planning notes (gap callouts). This is the source of truth for structure.
+- `TABLE_OF_CONTENTS.md` — master plan with all section outlines, lab templates, and internal planning notes (gap callouts). This is the source of truth for structure.
 - `CLAUDE.md` — this file. Project standards, conventions, and rules for all contributors (human and AI).
 - `src/README.md` — code contributor guide: directory layout, import rules, naming conventions.
 - `environment.yml` — conda environment definition. Single source of truth for dependencies.
 - `template/reference.docx` — Word template for pandoc: Roboto body, Consolas code, margins (top 2cm, left 2cm, right 1cm, bottom 1cm), page numbers bottom center.
+- `docs/METHODOLOGY.md` — records every rule in this file, why it was added, and what problem it solved. **When adding or changing a rule in CLAUDE.md, update METHODOLOGY.md with the reason.**
 
 ---
 
@@ -83,17 +85,19 @@ For PDF/PPTX slides, install Chromium and use `marp slides.md -o ../output/slide
 
 ## Code Standards
 
-- **Show your tools.** Every code block must explicitly display the libraries/imports being used. If a calculation is built from scratch (no library call), show the implementation explicitly.
+- **Show your tools.** Every code block must explicitly display the libraries/imports being used. If a calculation is built from scratch (no library call), show the implementation explicitly. When using external functions (e.g. `scipy.stats.linregress`, `scipy.signal.argrelextrema`), state briefly what they do and what method they use — not just "fit a line" or "find maxima."
 - **Comment every line.** Code explanation must include inline comments stating what each line does.
 - **Compact and modular.** Wrap reusable operations in functions. Each function does one thing. Code should be easy to copy into another notebook or script and run.
 - **Reproducibility.** Any signal involving randomness (noise, stochastic processes) must use a fixed random seed. State the seed explicitly.
 - **Import from `src/common/`.** Constants (`FS`, `DURATION`, `SEED`, `DPI`), signal generators, window functions, and plotting utilities all live in `src/common/`. Never hardcode these values in lab code. See `src/README.md` for the full contributor guide.
+- **Every figure must have its code shown in the report.** The instructor does not go to GitHub. Before each figure, show the code that produces it — the function call, the parameters, the data flow. Pattern: **code block → figure → interpretation.** No figure should appear without the reader seeing exactly how it was generated.
+- **Numbers that drive decisions must be traceable to code.** If a number determines the analysis direction (e.g. "91.8% delta" drives the triage, "1/f slope = -3.18" determines signal vs. noise), the code that computes it must appear immediately before, or the raw output must be shown. Descriptive statistics (amplitude range, std) are fine as prose. The critical chain is: **code → number → decision.**
 
 ---
 
 ## Model Signals (Volume B Labs)
 
-All model signals must satisfy the lab constraints (see Volume B header in `Thesis_Table_of_Contents.md`):
+All model signals must satisfy the lab constraints (see Volume B header in `TABLE_OF_CONTENTS.md`):
 
 - All frequency components below **100 Hz**
 - Signal duration at least **1 200 s** (20 minutes)
@@ -138,7 +142,7 @@ Each counter is sequential within its type within each volume. **Never write a b
 
 - Render all figures at **300+ DPI**.
 - Export **all figures in both PNG (300 DPI) and SVG**. PNG for raster embedding; SVG for scalable/print quality. Both are generated automatically by `save_figure()` and the appendix save loops.
-- All axes must have **labels with physical units** (Hz, s, µV, dB, µV²/Hz, etc.) — not just variable names.
+- All axes must have **labels with physical units** (Hz, s, µV, dB, µV²/Hz, etc.) — not just variable names. Use proper Unicode symbols in axis labels: **µ** (not u), **²** (not ^2), **³** (not ^3). Write `"µV²/Hz"` not `"uV^2/Hz"`.
 - Use **perceptually uniform colormaps** (`viridis`, `inferno`, `plasma`, `magma`). **Never use `jet` or `rainbow`** — they distort perception and are not accessible.
 - Colors should be high-contrast and distinguishable in grayscale print.
 - **Every spectrogram and heatmap must have a colorbar** with labeled units (e.g. "Power (dB)", "Power (linear)"). The scale choice (linear or dB) must be **justified in the report text** — e.g. "dB is used because the burst and chirp differ in amplitude" or "linear is used because both tones have equal amplitude." When multiple spectrograms appear in one figure, use **one shared colorbar** with a shared color range — not one per panel.
@@ -184,6 +188,13 @@ Volume C code **must** import from `src/common/`, the same infrastructure used i
 - **`eeg.py`** — EEG loading (MNE wrapper), band-power computation (Welch with justified parameters). All EEG I/O goes through this module.
 
 If Volume C needs a new utility, add it to `src/common/`, not to the lab code.
+
+### Primary Channel
+
+- **CZ (vertex)** is the default channel for all single-channel analysis. It sits at the top center of the scalp and picks up activity from both hemispheres with minimal regional bias — the least biased starting point for triage.
+- Use other channels only when the analysis specifically requires it (e.g., comparing hemispheres, investigating a regional feature, or examining auxiliary channels for artifact identification).
+- When switching from CZ, state which channel and why.
+- For auxiliary/non-brain channels (ECG, EMG, EOG), label axes with both the channel name and the suspected signal type — e.g. "25+ (suspected ECG)" — so the reader never has to guess what a channel contains.
 
 ### Physical Units
 

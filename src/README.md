@@ -42,7 +42,7 @@ docs/                  all markdown content
   volume_A.md          Volume A - theory
   volume_B.md          Volume B - labs + Appendix B
   slides.md            unified slide deck (Marp)
-  Thesis_Table_of_Contents.md  master plan (internal)
+  TABLE_OF_CONTENTS.md  master plan (internal)
 
 template/              reference.docx for pandoc (Roboto, Consolas, margins)
 data/                  raw EEG data (Volume C)

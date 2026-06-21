@@ -670,6 +670,8 @@ The true maximum is located by finding the local peak of the computed spectrum:
 
 ```python
 from scipy.signal import argrelextrema
+# argrelextrema finds local maxima by comparing each point to its neighbors.
+# order=5 means a point must be larger than the 5 points on each side to qualify.
 
 def find_sidelobe_maxima(bins, W_mag, main_lobe_bins=1.5):
     right_half = bins > main_lobe_bins                    # positive side, outside main lobe
@@ -740,10 +742,11 @@ We collect the actual positions and magnitudes of the first 6 side-lobe maxima a
 
 Table B.9 confirms that the $(2k+1)\pi$ approximation (Equation (B.15)) is excellent for $k \geq 2$ - within 0.2 dB. The deviation is largest at $k = 1$ (the first side lobe), where the skew effect is strongest.
 
-**Regression code:**
+**Regression code.** We fit $\log_{10}(\text{magnitude}) = \text{slope} \cdot \log_{10}(\text{bin}) + \text{intercept}$ via ordinary least squares (OLS). This is equivalent to fitting a power law $\text{magnitude} = a \cdot \text{bin}^{\text{slope}}$ by linearizing both axes. `scipy.stats.linregress` computes the OLS closed-form solution and returns the slope, intercept, R-value, p-value, and standard error.
 
 ```python
 from scipy.stats import linregress
+# linregress: ordinary least squares (OLS) fit of y = slope*x + intercept
 
 log_bins = np.log10(peak_bins)                            # log of bin positions
 log_mag = np.log10(peak_values)                           # log of magnitudes
@@ -1438,51 +1441,110 @@ Figure B.35 shows their autocorrelations overlaid. The two curves are identical 
 
 Phase is gone. The autocorrelation tells you *which* frequency is present (10 Hz) and *how strong* it is, but not *when it starts* or *what phase it has*. Their power spectra $|X[k]|^2$ are also identical (difference: $4.66 \times 10^{-10}$).
 
+**Experiment D - Cross-correlation.** Autocorrelation compares a signal with itself. Cross-correlation (Section A.6.5) compares two different signals to detect shared structure.
+
+The test signals use the same tone-in-noise formula from Lab 2 (Equation (B.4)):
+
+$$x_1[n] = A\cos(2\pi f_0 n / f_s) + \eta_1[n], \qquad x_2[n] = A\cos(2\pi f_0 n / f_s) + \eta_2[n]$$
+
+where $\eta_1$ and $\eta_2$ are independent white Gaussian noise ($\sigma = 1.0$) with different seeds (42 and 99). The shared tone ($A = 0.5$, $f_0 = 10$ Hz) is identical in both; only the noise differs. Two test cases: (1) shared 10 Hz tone with independent noise, (2) no shared component (10 Hz vs 20 Hz, independent noise).
+
+```python
+def compute_autocorrelation_cross(x, y):
+    """Cross-correlation r_xy[l] = Σ x[n] y[n-l], positive lags only.
+    Uses np.correlate — same as autocorrelation but with two different inputs."""
+    N = len(x)                                             # signal length
+    r_full = np.correlate(x, y, mode="full")               # full cross-correlation
+    r = r_full[N - 1:]                                     # positive lags
+    lags = np.arange(len(r))                               # lag indices
+    return lags, r
+
+# --- Case 1: shared 10 Hz tone, independent noise ---
+x_tone, _, t = make_tone(10.0, A=0.5, duration=60.0)      # shared tone
+x_noise1, _, _ = make_noise(sigma=1.0, duration=60.0, seed=42)   # noise 1
+x_noise2, _, _ = make_noise(sigma=1.0, duration=60.0, seed=99)   # noise 2 (different seed)
+x1 = x_tone + x_noise1                                    # tone + noise (seed 42)
+x2 = x_tone + x_noise2                                    # same tone + different noise (seed 99)
+
+lags, r_shared = compute_autocorrelation_cross(x1, x2)    # cross-correlation
+rho_shared = np.corrcoef(x1, x2)[0, 1]                    # Pearson ρ (Equation A.59)
+
+# --- Case 2: no shared component ---
+x_tone20, _, _ = make_tone(20.0, A=0.5, duration=60.0)    # different frequency
+x1_no = x_tone + x_noise1                                 # 10 Hz + noise
+x2_no = x_tone20 + x_noise2                               # 20 Hz + different noise
+
+lags, r_noshr = compute_autocorrelation_cross(x1_no, x2_no)
+rho_noshr = np.corrcoef(x1_no, x2_no)[0, 1]               # should be ≈ 0
+```
+
+Figure B.36 shows the shared-tone case. The time domain (top) shows two noisy signals that roughly track each other — the shared 10 Hz tone is buried but present. The cross-correlation (bottom) reveals it: periodic peaks at 0.1 s intervals (= 1/10 Hz), with ρ = 0.1068. The shared tone survives cross-correlation; the independent noise cancels.
+
+![Figure B.36 - Shared 10 Hz tone: time domain + cross-correlation](../results/graphs/lab6/figure_B_36.png)
+
+Figure B.37 shows the no-shared case. The time domain (top two panels) shows two unrelated signals — x₁ at 10 Hz and x₂ at 20 Hz, each with independent noise. The cross-correlation (bottom) is flat noise with no periodic structure, ρ = -0.0062 (effectively zero).
+
+![Figure B.37 - No shared component: time domain + cross-correlation](../results/graphs/lab6/figure_B_37.png)
+
+**Table B.23 - Cross-correlation Pearson coefficients**
+
+| Signal pair | Shared component | ρ |
+| --- | --- | --- |
+| 10 Hz + noise₁ vs 10 Hz + noise₂ | Yes (same 10 Hz) | 0.1068 |
+| 10 Hz + noise₁ vs 20 Hz + noise₂ | No | -0.0062 |
+| noise₁ vs noise₂ (control) | No | -0.0066 |
+
+Cross-correlation detects the shared 10 Hz component (ρ = 0.107, periodic peaks) that neither autocorrelation alone could prove was *shared* between the two signals. When no component is shared, the cross-correlation is indistinguishable from noise (ρ ≈ 0). This validates Equations (A.57)-(A.59) and provides the tool used in Volume C, Section C.4 to check for ECG contamination in EEG channels.
+
 ### Verification
 
-
-**Table B.22 - Verification**
+**Table B.24 - Verification**
 
 | Prediction (Volume A) | Measured | Confirmed? |
 | --- | --- | --- |
-| r[0] = total energy (Eq. A.45) | 17,101.30 = 17,101.30 | Yes (exact) |
+| r[0] = total energy (Eq. A.54) | 17,101.30 = 17,101.30 | Yes (exact) |
 | Periodic peaks at lag = k·25 samples (A.6.1) | Peaks at 25, 50, 75, ... samples | Yes |
-| DFT of r[l] = power spectrum (Eq. A.47) | Relative error 1.02 × 10⁻¹⁶ | Yes (machine precision) |
+| DFT of r[l] = power spectrum (Eq. A.56) | Relative error 1.02 × 10⁻¹⁶ | Yes (machine precision) |
 | Different-phase tones → identical r[l] (A.6.3) | Difference 3.04 × 10⁻¹² | Yes (machine precision) |
+| Shared tone → periodic cross-correlation (A.6.5) | ρ = 0.107, periodic peaks at 0.1 s | Yes |
+| No shared tone → zero cross-correlation (A.6.5) | ρ = -0.006, no structure | Yes |
 
 ### Conclusion
 
 Autocorrelation does exactly what Section A.6 predicts: it detects periodicity that noise hides (the 10 Hz tone, invisible in the time domain, produces clear periodic peaks in $r[l]$), and it is linked to the power spectrum by the Wiener-Khinchin theorem (verified to machine precision). But it discards phase - two signals that differ only in when they start produce identical autocorrelations.
 
-This phase-blindness is the limitation that the WVD addresses. The WVD (Lab 7) computes an *instantaneous* autocorrelation $r_n[l] = x[n + l/2] \cdot x^*[n - l/2]$ at each time position $n$, then takes the DFT over lag $l$. The Wiener-Khinchin theorem becomes a time-indexed family of Fourier pairs - one instantaneous power spectrum at each $n$. That is the bridge from here to the sharpest time-frequency representation.
+Cross-correlation extends this to two signals: it detects shared structure (ρ = 0.107 for the shared 10 Hz case) and correctly reports zero when no structure is shared (ρ ≈ -0.006). This tool is used in Volume C, Section C.4 to verify whether auxiliary channels (ECG, EMG, EOG) contaminate the EEG.
+
+The phase-blindness of autocorrelation is the limitation that the WVD addresses. The WVD (Lab 7) computes an *instantaneous* autocorrelation $r_n[l] = x[n + l/2] \cdot x^*[n - l/2]$ at each time position $n$, then takes the DFT over lag $l$. The Wiener-Khinchin theorem becomes a time-indexed family of Fourier pairs - one instantaneous power spectrum at each $n$. That is the bridge from here to the sharpest time-frequency representation.
+
 *Next: B.7 - The WVD and its Tradeoffs. The global autocorrelation becomes instantaneous; the Wiener-Khinchin Fourier transform becomes time-indexed. The result is the sharpest possible time-frequency representation of a single-component signal - and the cross-term problem that drives the rest of the report.*
 
-# Appendix B - The Symmetric ($M-1$) Window Convention
+# Appendix B1 - The Symmetric ($M-1$) Window Convention
 
 > This appendix derives the Hann window spectrum using the symmetric convention ($M-1$) and proves that both conventions converge as $M \to \infty$. Lab 3 uses the periodic convention ($M$) for compatibility with scipy and the geometric-series factorization. This appendix shows the alternative path - where the algebra is simpler but the shared-numerator trick does not apply.
 >
-## AB.1 The Symmetric Cosine-Sum
+## AB1.1 The Symmetric Cosine-Sum
 
 In the symmetric convention, the cosine-sum formula divides by $M-1$:
 
 $$
-w_{\text{sym}}[n] = \sum_{p=0}^{P} (-1)^p \, a_p \cos\!\left(\frac{2\pi p n}{M-1}\right), \qquad n = 0, 1, \ldots, M-1 \tag{AB.1}
+w_{\text{sym}}[n] = \sum_{p=0}^{P} (-1)^p \, a_p \cos\!\left(\frac{2\pi p n}{M-1}\right), \qquad n = 0, 1, \ldots, M-1 \tag{AB1.1}
 $$
 
 For Hann ($a_0 = 0.5, a_1 = 0.5$):
 
 $$
-w_{\text{sym}}[n] = 0.5 - 0.5\cos\!\left(\frac{2\pi n}{M-1}\right) \tag{AB.2}
+w_{\text{sym}}[n] = 0.5 - 0.5\cos\!\left(\frac{2\pi n}{M-1}\right) \tag{AB1.2}
 $$
 
 Edge values: $w[0] = 0.5 - 0.5\cos(0) = 0$ and $w[M-1] = 0.5 - 0.5\cos(2\pi) = 0$. Both endpoints are **exactly** zero - the window is symmetric.
 
-## AB.2 The DFT of the Symmetric Hann Window
+## AB1.2 The DFT of the Symmetric Hann Window
 
 Expanding via Euler:
 
 $$
-W_{\text{sym}}(\omega) = \sum_{n=0}^{M-1} w_{\text{sym}}[n] \, e^{-j\omega n} = 0.5 \sum_{n=0}^{M-1} e^{-j\omega n} - 0.25 \sum_{n=0}^{M-1} e^{-j(\omega - 2\pi/(M-1)) n} - 0.25 \sum_{n=0}^{M-1} e^{-j(\omega + 2\pi/(M-1)) n} \tag{AB.3}
+W_{\text{sym}}(\omega) = \sum_{n=0}^{M-1} w_{\text{sym}}[n] \, e^{-j\omega n} = 0.5 \sum_{n=0}^{M-1} e^{-j\omega n} - 0.25 \sum_{n=0}^{M-1} e^{-j(\omega - 2\pi/(M-1)) n} - 0.25 \sum_{n=0}^{M-1} e^{-j(\omega + 2\pi/(M-1)) n} \tag{AB1.3}
 $$
 
 Each sum is a geometric series. The shift is $2\pi/(M-1)$, **not** $2\pi/M$.
@@ -1496,21 +1558,21 @@ $$
 The phase exponent for the $p$-shifted term:
 
 $$
-\frac{2\pi p}{M-1} \cdot \frac{M-1}{2} = \pi p \qquad \text{(AB.4)}
+\frac{2\pi p}{M-1} \cdot \frac{M-1}{2} = \pi p \qquad \text{(AB1.4)}
 $$
 
 This is **exactly** $\pi p$ - an integer multiple of $\pi$. Therefore:
 
 $$
-e^{j\pi p} = (-1)^p \qquad \text{(AB.5)}
+e^{j\pi p} = (-1)^p \qquad \text{(AB1.5)}
 $$
 
-No residual phase. The $(-1)^p$ from the phase cancels with the $(-1)^p$ from the cosine-sum alternation in Equation (AB.1), giving $(-1)^{2p} = 1$. All phase factors vanish.
+No residual phase. The $(-1)^p$ from the phase cancels with the $(-1)^p$ from the cosine-sum alternation in Equation (AB1.1), giving $(-1)^{2p} = 1$. All phase factors vanish.
 
 **The result is purely real:**
 
 $$
-W_{\text{sym}}(\omega) = e^{-j\omega(M-1)/2} \left[\frac{0.5\sin(\omega M/2)}{\sin(\omega/2)} + \frac{0.25\sin((\omega - 2\pi/(M-1))M/2)}{\sin((\omega - 2\pi/(M-1))/2)} + \frac{0.25\sin((\omega + 2\pi/(M-1))M/2)}{\sin((\omega + 2\pi/(M-1))/2)}\right] \tag{AB.6}
+W_{\text{sym}}(\omega) = e^{-j\omega(M-1)/2} \left[\frac{0.5\sin(\omega M/2)}{\sin(\omega/2)} + \frac{0.25\sin((\omega - 2\pi/(M-1))M/2)}{\sin((\omega - 2\pi/(M-1))/2)} + \frac{0.25\sin((\omega + 2\pi/(M-1))M/2)}{\sin((\omega + 2\pi/(M-1))/2)}\right] \tag{AB1.6}
 $$
 
 The common phase $e^{-j\omega(M-1)/2}$ does not affect the magnitude. The bracket is **entirely real** - a sum of $\sin/\sin$ terms with no complex exponentials.
@@ -1518,7 +1580,7 @@ The common phase $e^{-j\omega(M-1)/2}$ does not affect the magnitude. The bracke
 **The magnitude is simply the absolute value of the bracket:**
 
 $$
-\frac{|W_{\text{sym}}(\omega)|}{M} = \frac{1}{M}\left|\frac{0.5\sin(\omega M/2)}{\sin(\omega/2)} + \frac{0.25\sin((\omega - 2\pi/(M-1))M/2)}{\sin((\omega - 2\pi/(M-1))/2)} + \frac{0.25\sin((\omega + 2\pi/(M-1))M/2)}{\sin((\omega + 2\pi/(M-1))/2)}\right| \tag{AB.7}
+\frac{|W_{\text{sym}}(\omega)|}{M} = \frac{1}{M}\left|\frac{0.5\sin(\omega M/2)}{\sin(\omega/2)} + \frac{0.25\sin((\omega - 2\pi/(M-1))M/2)}{\sin((\omega - 2\pi/(M-1))/2)} + \frac{0.25\sin((\omega + 2\pi/(M-1))M/2)}{\sin((\omega + 2\pi/(M-1))/2)}\right| \tag{AB1.7}
 $$
 
 This is the formula used in the Desmos verification. No phase approximation, no "magnitude of a complex bracket" - just real numbers inside an absolute value.
@@ -1531,18 +1593,18 @@ This is the formula used in the Desmos verification. No phase approximation, no 
 
 Since $M/(M-1) = 1 + 1/(M-1) \neq 1$ (not an integer), $\sin(\omega M/2 - \pi M/(M-1)) \neq \pm\sin(\omega M/2)$. The shared-numerator factorization from Lab 3 (Equation (B.19c)) does not work. Each term keeps its own numerator.
 
-## AB.3 Convergence as $M \to \infty$
+## AB1.3 Convergence as $M \to \infty$
 
 As $M$ grows:
 
 $$
-\frac{M}{M-1} = 1 + \frac{1}{M-1} \xrightarrow{M \to \infty} 1 \tag{AB.8}
+\frac{M}{M-1} = 1 + \frac{1}{M-1} \xrightarrow{M \to \infty} 1 \tag{AB1.8}
 $$
 
 The shift $2\pi/(M-1) \to 2\pi/M$, and the symmetric numerators converge to the periodic ones:
 
 $$
-\sin\!\left(\frac{\omega M}{2} - \frac{\pi M}{M-1}\right) \xrightarrow{M \to \infty} \sin\!\left(\frac{\omega M}{2} - \pi\right) = -\sin\!\left(\frac{\omega M}{2}\right) \tag{AB.9}
+\sin\!\left(\frac{\omega M}{2} - \frac{\pi M}{M-1}\right) \xrightarrow{M \to \infty} \sin\!\left(\frac{\omega M}{2} - \pi\right) = -\sin\!\left(\frac{\omega M}{2}\right) \tag{AB1.9}
 $$
 
 In the limit, the shared-numerator factorization becomes exact and the two conventions give identical results.
@@ -1550,11 +1612,11 @@ In the limit, the shared-numerator factorization becomes exact and the two conve
 **Finite-$M$ error.** The difference between the two conventions at finite $M$:
 
 $$
-\epsilon = \frac{M}{M-1} - 1 = \frac{1}{M-1} \tag{AB.10}
+\epsilon = \frac{M}{M-1} - 1 = \frac{1}{M-1} \tag{AB1.10}
 $$
 
 
-**Table AB.1 - M vs M-1 convergence**
+**Table AB1.1 - M vs M-1 convergence**
 
 | $M$ | $\epsilon$ | Edge value difference | Peak side-lobe difference |
 | --- | --- | --- | --- |
@@ -1566,10 +1628,10 @@ $$
 
 At $M = 256$ (the EEG-typical window length), the difference is 0.11 dB - invisible in any practical measurement. At $M = 1024$, it drops to 0.03 dB.
 
-## AB.4 Summary
+## AB1.4 Summary
 
 
-**Table AB.2 - Convention comparison**
+**Table AB1.2 - Convention comparison**
 
 | | Periodic ($M$, Lab 3) | Symmetric ($M-1$, this appendix) |
 | --- | --- | --- |
@@ -1581,3 +1643,89 @@ At $M = 256$ (the EEG-typical window length), the difference is 0.11 dB - invisi
 | Convergence | Both converge to the same limit as $M \to \infty$ | |
 
 The two conventions are two finite-sample approximations of the same continuous window, approaching each other as $M$ grows. Lab 3 uses periodic for the shared-numerator factorization and scipy compatibility. This appendix provides the symmetric derivation for completeness and confirms the convergence.
+
+# Appendix B2 - CV of the Six Signal Archetypes
+
+### Introduction
+
+Section A.4.1 established that the coefficient of variation (CV = std / mean) of DFT bin power equals 1.0 for an exponential distribution (white Gaussian noise), and that deterministic signals with concentrated spectral features produce CV >> 1. This appendix computes CV empirically for all six signal archetypes from Appendix A, creating a reference table for interpreting CV values on real EEG data (Volume C, Section C.4).
+
+### Setup
+
+Each archetype is generated at $f_s = 250$ Hz, duration = 60 s, using the standard signal generators from `src/common/signals.py`. The DFT is computed, and CV is calculated from the positive-frequency bin powers:
+
+```python
+from src.common import make_tone, make_mixed_tones, make_chirp, make_transient, make_noise
+
+def compute_cv(x, fs=250):
+    X = np.fft.fft(x)                                     # full DFT
+    freqs = np.fft.fftfreq(len(x), d=1/fs)                # frequency axis
+    pos = freqs > 0                                       # positive frequencies (exclude DC)
+    power = np.abs(X[pos])**2                              # bin powers |X[k]|²
+    cv = np.std(power) / np.mean(power)                    # CV = std / mean
+    return cv
+
+# Six archetypes
+x_tone, _, _ = make_tone(10.0, A=1.0, duration=60.0)      # single tone
+x_mixed, _, _ = make_mixed_tones([10.0, 20.0], duration=60.0)  # mixed tones
+x_chirp, _, _ = make_chirp(5.0, 0.333, duration=60.0)     # chirp (5-25 Hz)
+x_trans, _, _ = make_transient(int(30*250), int(0.5*250),  # transient (0.5 s burst)
+                                f0=10.0, A=3.0, duration=60.0)
+x_noise, _, _ = make_noise(sigma=1.0, duration=60.0)       # white noise
+x_tn = make_tone(10.0, A=0.5, duration=60.0)[0] + \
+       make_noise(sigma=1.0, duration=60.0)[0]              # tone + noise
+```
+
+Full source: `src/appendix_b2/cv_archetypes.py`.
+
+### Parameters
+
+**Table AB2.1 - Appendix B2 parameters**
+
+| Parameter | Value |
+| --- | --- |
+| $f_s$ (Hz) | 250 |
+| Duration (s) | 60 |
+| $N$ (samples) | 15 000 |
+| Tone frequency | 10 Hz (single), 10 + 20 Hz (mixed) |
+| Chirp | 5-25 Hz, µ = 0.333 Hz/s |
+| Transient | 0.5 s Gaussian burst at 10 Hz, center t = 30 s |
+| Noise | σ = 1.0, seed = 42 |
+| Tone + noise | A = 0.5 (tone), σ = 1.0 (noise) |
+
+### Results
+
+Figure AB2.1 shows the time domain (left, first 2 seconds) and power spectrum (right, dB) for each archetype:
+
+![Figure AB2.1 - Six archetypes: time domain and power spectrum](../results/graphs/appendix_b2/figure_B2_01.png)
+
+Figure AB2.2 shows the CV values as a bar chart, with the CV = 1.0 reference line (exponential / noise):
+
+![Figure AB2.2 - CV of bin power for the six signal archetypes](../results/graphs/appendix_b2/figure_B2_02.png)
+
+**Table AB2.2 - CV of the six signal archetypes**
+
+| Archetype | CV | Interpretation |
+| --- | --- | --- |
+| Single tone (10 Hz) | 86.6 | All energy in 1 bin - CV is huge |
+| Mixed tones (10 + 20 Hz) | 61.2 | Energy in 2 bins - still very high |
+| Chirp (5-25 Hz) | 2.3 | Energy spread across many bins (20 Hz sweep) - moderate |
+| Transient (0.5 s burst) | 12.5 | Energy concentrated in time and frequency - high |
+| Noise (σ = 1.0) | 1.01 | Energy uniform across all bins - exponential confirmed |
+| Tone + noise (A=0.5, σ=1.0) | 10.1 | Mix of concentrated tone and spread noise |
+
+### Verification
+
+| Prediction (Volume A) | Measured | Confirmed? |
+| --- | --- | --- |
+| Noise: CV = 1.0 (exponential, A.4.1) | CV = 1.01 | Yes |
+| Deterministic signals: CV >> 1 (A.4.1) | Tone: 86.6, mixed: 61.2, transient: 12.5 | Yes |
+| More concentrated spectrum → higher CV | Tone (1 bin) > mixed (2 bins) > transient > chirp > noise | Yes |
+
+### Conclusion
+
+CV measures **spectral concentration**, not signal presence. It distinguishes narrowband features (energy in a few bins, CV $\gg$ 1) from broadband backgrounds (energy spread across many bins, CV $\approx$ 1). The scale spans two orders of magnitude: from noise (1.0) to a single tone (86.6).
+
+The chirp (CV = 2.3) reveals the limitation: it is a deterministic signal, clearly not noise, but its energy is spread across a 20 Hz sweep rather than concentrated in a few bins. CV cannot distinguish a chirp from slightly non-Gaussian noise. This means CV answers the question "is there a **narrowband oscillation** here?" — not the broader question "is there any signal here?" For EEG, this is the right question: the clinical features of interest (alpha rhythms, sleep spindles, delta oscillations) are narrowband, and CV detects their presence or absence reliably.
+
+This table provides the reference for Volume C, Section C.4: when CV = 1.11 is measured on the alpha band of real EEG, it is closest to noise (1.01) and far from any narrowband archetype (tone: 86.6, transient: 12.5, tone+noise: 10.1). The alpha band contains no narrowband oscillation — consistent with an immature neonatal cortex that has not yet developed alpha rhythms.

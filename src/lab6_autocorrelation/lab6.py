@@ -284,24 +284,148 @@ def experiment_phase_blindness():
 
 
 # ============================================================
-# 5. Run all experiments
+# 5. Experiment D: Cross-correlation detects shared structure
+# ============================================================
+def experiment_cross_correlation():
+    """
+    Two signals sharing a common tone but with independent noise.
+    Cross-correlation detects the shared component.
+    Control: two signals with NO shared component.
+    """
+    print("\nExperiment D: Cross-correlation")
+    print("-" * 40)
+
+    dur = 60.0                                            # 60 s signal
+
+    # --- Case 1: shared 10 Hz tone, independent noise ---
+    x_tone, _, t = make_tone(F0, A=A_TONE, duration=dur)  # shared tone
+    x_noise1, _, _ = make_noise(sigma=SIGMA_NOISE, duration=dur, seed=42)
+    x_noise2, _, _ = make_noise(sigma=SIGMA_NOISE, duration=dur, seed=99)
+    x1_shared = x_tone + x_noise1                         # tone + noise (seed 42)
+    x2_shared = x_tone + x_noise2                         # same tone + different noise (seed 99)
+
+    # --- Case 2: no shared component (10 Hz vs 20 Hz) ---
+    x_tone_10, _, _ = make_tone(10.0, A=A_TONE, duration=dur)
+    x_tone_20, _, _ = make_tone(20.0, A=A_TONE, duration=dur)
+    x1_noshr = x_tone_10 + x_noise1                       # 10 Hz + noise
+    x2_noshr = x_tone_20 + x_noise2                       # 20 Hz + different noise
+
+    # --- Cross-correlation ---
+    lags_sh, r_sh = compute_autocorrelation_cross(x1_shared, x2_shared)
+    lags_ns, r_ns = compute_autocorrelation_cross(x1_noshr, x2_noshr)
+
+    # --- Pearson coefficients ---
+    rho_shared = np.corrcoef(x1_shared, x2_shared)[0, 1]
+    rho_noshr = np.corrcoef(x1_noshr, x2_noshr)[0, 1]
+    rho_noise = np.corrcoef(x_noise1, x_noise2)[0, 1]
+
+    print(f"  Pearson coefficients:")
+    print(f"    Shared tone (10 Hz in both):    ρ = {rho_shared:.4f}")
+    print(f"    No shared tone (10 Hz vs 20 Hz): ρ = {rho_noshr:.4f}")
+    print(f"    Noise only (η1 vs η2):           ρ = {rho_noise:.4f}")
+
+    period_samples = int(FS / F0)                         # expected period: 25 samples
+    max_lag = period_samples * 10                          # show 10 periods
+    lag_time_sh = lags_sh / FS
+    lag_time_ns = lags_ns / FS
+    mask = (t >= 0) & (t <= 2)                             # first 2 seconds for time domain
+
+    # --- Figure B.36: shared tone (time domain + cross-correlation) ---
+    fig_shared, (ax_td1, ax_xc1) = plt.subplots(2, 1, figsize=(12, 6))
+
+    ax_td1.plot(t[mask], x1_shared[mask], linewidth=0.5, color="#2563eb",
+                label="x₁: 10 Hz + noise (seed 42)")
+    ax_td1.plot(t[mask], x2_shared[mask], linewidth=0.5, color="#dc2626", alpha=0.7,
+                label="x₂: 10 Hz + noise (seed 99)")
+    ax_td1.set_ylabel("Amplitude")
+    ax_td1.set_xlabel("Time (s)")
+    ax_td1.set_title(f"Figure B.{FIG_START + 5}", loc="left",
+                      fontsize=9, fontstyle="italic")
+    ax_td1.set_title("Shared 10 Hz tone, independent noise")
+    ax_td1.legend(fontsize=8)
+    ax_td1.grid(True, alpha=0.3)
+
+    ax_xc1.plot(lag_time_sh[:max_lag], r_sh[:max_lag], linewidth=0.8, color="#2563eb")
+    ax_xc1.set_ylabel("$r_{x_1 x_2}[l]$")
+    ax_xc1.set_xlabel("Lag (s)")
+    ax_xc1.set_title(f"Cross-correlation (ρ = {rho_shared:.4f}) — periodic peaks at 1/f₀ = 0.1 s")
+    ax_xc1.grid(True, alpha=0.3)
+    for k in range(1, 11):
+        ax_xc1.axvline(k * period_samples / FS, color="red", ls="--", lw=0.5, alpha=0.5)
+
+    fig_shared.set_dpi(DPI)
+    fig_shared.tight_layout()
+
+    # --- Figure B.37: no shared component (time domain separated + cross-correlation) ---
+    fig_noshr, (ax_td2a, ax_td2b, ax_xc2) = plt.subplots(3, 1, figsize=(12, 8))
+
+    ax_td2a.plot(t[mask], x1_noshr[mask], linewidth=0.5, color="#2563eb")
+    ax_td2a.set_ylabel("x₁ (10 Hz)")
+    ax_td2a.set_title(f"Figure B.{FIG_START + 6}", loc="left",
+                       fontsize=9, fontstyle="italic")
+    ax_td2a.set_title("No shared component: 10 Hz and 20 Hz (separate signals)")
+    ax_td2a.grid(True, alpha=0.3)
+
+    ax_td2b.plot(t[mask], x2_noshr[mask], linewidth=0.5, color="#dc2626")
+    ax_td2b.set_ylabel("x₂ (20 Hz)")
+    ax_td2b.set_xlabel("Time (s)")
+    ax_td2b.grid(True, alpha=0.3)
+
+    ax_xc2.plot(lag_time_ns[:max_lag], r_ns[:max_lag], linewidth=0.8, color="#dc2626")
+    ax_xc2.set_ylabel("$r_{x_1 x_2}[l]$")
+    ax_xc2.set_xlabel("Lag (s)")
+    ax_xc2.set_title(f"Cross-correlation (ρ = {rho_noshr:.4f}) — no periodic structure")
+    ax_xc2.grid(True, alpha=0.3)
+
+    fig_noshr.set_dpi(DPI)
+    fig_noshr.tight_layout()
+
+    return fig_shared, fig_noshr
+
+
+def compute_autocorrelation_cross(x, y):
+    """
+    Cross-correlation r_xy[l] = Σ x[n] y[n-l], positive lags only.
+    Uses np.correlate for efficiency.
+
+    Parameters
+    ----------
+    x, y : ndarray — two input signals of the same length
+
+    Returns
+    -------
+    lags : ndarray — lag indices [0, 1, ..., N-1]
+    r    : ndarray — cross-correlation values
+    """
+    N = len(x)
+    r_full = np.correlate(x, y, mode="full")               # full cross-correlation
+    r = r_full[N - 1:]                                     # positive lags
+    lags = np.arange(len(r))
+    return lags, r
+
+
+# ============================================================
+# 6. Run all experiments
 # ============================================================
 def run_lab6(save=False):
     """Run all Lab 6 experiments and optionally save figures."""
     print("=" * 60)
-    print("Lab 6: Autocorrelation of a Noisy Signal")
+    print("Lab 6: Autocorrelation and Cross-Correlation")
     print("=" * 60)
 
     fig_td_a, fig_ac_a, lags, r, x = experiment_periodicity()  # Experiment A
     fig_wk = experiment_wiener_khinchin(x, lags, r)  # Experiment B
     fig_td_c, fig_ac_c = experiment_phase_blindness()  # Experiment C
+    fig_shared, fig_noshr = experiment_cross_correlation()  # Experiment D
 
     all_figs = [
-        (fig_td_a, False),  # B.31: tone-in-noise time domain
-        (fig_ac_a, False),  # B.32: autocorrelation (full + zoomed)
-        (fig_wk, False),  # B.33: Wiener-Khinchin overlay
-        (fig_td_c, False),  # B.34: phase comparison time domain
-        (fig_ac_c, False),  # B.35: phase comparison autocorrelation
+        (fig_td_a, False),      # B.31: tone-in-noise time domain
+        (fig_ac_a, False),      # B.32: autocorrelation (full + zoomed)
+        (fig_wk, False),        # B.33: Wiener-Khinchin overlay
+        (fig_td_c, False),      # B.34: phase comparison time domain
+        (fig_ac_c, False),      # B.35: phase comparison autocorrelation
+        (fig_shared, False),    # B.36: shared tone — time domain + cross-correlation
+        (fig_noshr, False),     # B.37: no shared — time domain + cross-correlation
     ]
 
     if save:

@@ -533,6 +533,8 @@ $$
 
 with mean $\mathbb{E}[P[k]] = N\sigma_x^2$ and - crucially - standard deviation also equal to $N\sigma_x^2$. The coefficient of variation is 1: the standard deviation equals the mean. This means a single bin's power estimate is inherently noisy, with 100% relative uncertainty, regardless of how many samples $N$ we use.
 
+For comparison, a deterministic signal (e.g. a pure tone) concentrates its energy in a few bins, leaving most bins near zero. This produces CV $\gg$ 1 - the standard deviation far exceeds the mean because a few bins are very large while the majority are very small. The CV of the bin power distribution therefore distinguishes noise-like spectra (CV $\approx$ 1, energy spread across all bins) from spectra with concentrated features (CV $\gg$ 1, energy in a few bins). This property is used in Volume C, Section C.4.
+
 Now add a deterministic tone to the noise: $x[n] = A\cos(2\pi f_0 n / f_s) + \eta[n]$. At the bin $k_0$ nearest to $f_0$, the DFT output is a complex Gaussian shifted by the tone's contribution. The power $P[k_0]$ now follows a **non-central chi-squared distribution** - its mean is elevated above the noise-only level by the tone's energy. At all other bins (away from $f_0$), the distribution remains exponential as in Equation (A.34).
 
 This is the statistical model. A tone reveals itself as a bin whose power is improbably large under the null hypothesis of noise alone.
@@ -939,6 +941,37 @@ Two observations from Table A.11 set up the WVD:
 1. **No cross-terms for mixed tones.** The autocorrelation of $x_1[n] + x_2[n]$ contains $r_{x_1}[l] + r_{x_2}[l]$ plus cross-terms $r_{x_1 x_2}[l]$. For uncorrelated tones, the cross-terms vanish. This will **not** be the case for the WVD, where the quadratic structure produces cross-terms that do not vanish - the central complication of Sections A.7-A.8.
 
 2. **No time index.** Every entry in Table A.11 is a single function of lag $l$, averaged over all time. A chirp (frequency sweeping over time) would show a blurred autocorrelation - an average of cosines at many frequencies - losing the sweep information. The WVD fixes this by computing the autocorrelation at each time instant separately.
+
+### A.6.5 Cross-Correlation
+
+Autocorrelation compares a signal with shifted copies of **itself**. Cross-correlation compares two **different** signals:
+
+$$
+r_{xy}[l] = \sum_{n=0}^{N-1-|l|} x[n] \cdot y^*[n - l] \tag{A.57}
+$$
+
+The formula is identical to Equation (A.53) except that $x$ is compared to $y$, not to itself. If $y = x$, Equation (A.57) reduces to autocorrelation.
+
+**What it measures.** At each lag $l$, cross-correlation asks: "how similar are $x$ and $y$ when $y$ is shifted by $l$ samples?" A large $r_{xy}[l]$ means the two signals share structure at that lag. A near-zero $r_{xy}[l]$ for all $l$ means the signals are unrelated.
+
+**Cross-spectral density.** The Wiener-Khinchin theorem (Equation (A.56)) generalizes: the DFT of the cross-correlation is the **cross-spectrum**:
+
+$$
+S_{xy}[k] = X[k] \cdot Y^*[k] = \text{DFT}\{r_{xy}[l]\} \tag{A.58}
+$$
+
+where $X[k]$ and $Y[k]$ are the DFTs of $x$ and $y$. The cross-spectrum is complex - its magnitude measures how much shared power exists at each frequency, and its phase measures the timing relationship.
+
+**Normalized cross-correlation.** To get a dimensionless measure of similarity, normalize by the energies:
+
+$$
+\rho_{xy} = \frac{r_{xy}[0]}{\sqrt{r_{xx}[0] \cdot r_{yy}[0]}} = \frac{\sum_n x[n] \cdot y[n]}{\sqrt{\sum_n |x[n]|^2 \cdot \sum_n |y[n]|^2}} \tag{A.59}
+$$
+
+This is the **Pearson correlation coefficient** at zero lag. It ranges from $-1$ (perfectly anti-correlated) through $0$ (uncorrelated) to $+1$ (identical up to scale). In practice, `np.corrcoef(x, y)[0, 1]` computes this directly.
+
+**Why this matters for EEG.** An EEG recording has multiple channels. Cross-correlation between an EEG channel (CZ) and an auxiliary channel (ECG) answers: "does the heartbeat appear in the brain signal?" If $|\rho_{xy}| \approx 0$, there is no contamination. If $|\rho_{xy}|$ is significant, the ECG is leaking into the EEG - and the cross-spectrum $S_{xy}[k]$ shows at which frequencies the leakage occurs. This is used in Volume C, Section C.4.
+
 *Next: A.7 - The Wigner-Ville Distribution. The global autocorrelation becomes instantaneous; the Wiener-Khinchin Fourier transform becomes time-indexed. The result is the sharpest possible time-frequency representation of a single-component signal - and, for multi-component signals, the cross-term problem that drives the rest of the report.*
 
 # Appendix A - Signal Taxonomy

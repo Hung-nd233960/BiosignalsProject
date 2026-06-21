@@ -22,7 +22,10 @@ def prettify(text):
     # 3. Replace en dashes (–) with normal dashes (-)
     text = text.replace("–", "-")
 
-    # 4. Remove consecutive blank lines (keep at most one)
+    # 4. Remove blockquote lines (> text) — internal editorial notes
+    text = re.sub(r"^\s*>.*$\n?", "", text, flags=re.MULTILINE)
+
+    # 5. Remove consecutive blank lines (keep at most one)
     text = re.sub(r"\n{3,}", "\n\n", text)
 
     return text
@@ -44,7 +47,8 @@ def main():
 
         n_dashes = original.count("—") + original.count("–") - result.count("—") - result.count("–")
         n_rules = len(re.findall(r"^\s*[-*]{3,}\s*$", original, re.MULTILINE))
-        print(f"{filepath}: removed {n_rules} horizontal rules, replaced {n_dashes} fancy dashes")
+        n_quotes = len(re.findall(r"^\s*>", original, re.MULTILINE))
+        print(f"{filepath}: removed {n_rules} horizontal rules, {n_quotes} blockquotes, replaced {n_dashes} fancy dashes")
 
 
 if __name__ == "__main__":
