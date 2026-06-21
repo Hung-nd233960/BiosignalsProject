@@ -23,12 +23,13 @@ A short framing note stating the gap this report fills. The reader is assumed to
 
 ## A.1 Signal Theory
 
-*Gap: Signals & Systems teaches sampling via ideal band-limited signals; this rebuilds it from real, finite signals.*
-
 - **A.1.1** What a discrete signal *means* — samples vs. the continuous original; the loss and what is kept
 - **A.1.2** Discrete frequency derived: why normalized frequency is **f / fs** (the unit circle picture)
 - **A.1.3** Nyquist and aliasing — derived from the f/fs circle, not assumed from an ideal filter
 - **A.1.4** Sampling **count** vs. sampling **duration** — the two independent knobs and what each controls
+- **A.1.5** Signal classification: **stationary vs. non-stationary**, **deterministic vs. random** — why different signal types require different tools (DFT for stationary, STFT for non-stationary, statistics for random); connects to Appendix A's six archetypes
+- **A.1.6** Energy and power — signal energy $\sum |x[n]|^2$, signal power (energy per sample), finite-energy vs. finite-power signals; grounds Parseval (A.2.4), PSD (A.4), and band-power analysis (Volume C)
+- **A.1.7** The discrete signal as a vector in $\mathbb{R}^N$ — a length-$N$ signal is a point in $N$-dimensional space; inner product, norm, orthogonality; sets up the DFT as a change of basis (A.2.4), not a formula to memorize
 
 ## A.2 The DTFT and the DFT
 

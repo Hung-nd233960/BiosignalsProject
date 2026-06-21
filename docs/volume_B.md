@@ -338,6 +338,9 @@ This is the Dirichlet kernel (Lab 3, Equation (B.11)) in action. At 10.5 Hz, the
 
 ### Verification
 
+
+**Table B.2 - Verification**
+
 | Prediction (Volume A) | Measured | Confirmed? |
 | --- | --- | --- |
 | $\Delta f = f_s/N = 250/250 = 1.0$ Hz (Eq. A.6) | 1.0 Hz | Yes |
@@ -446,7 +449,7 @@ for seg_dur in [1200, 20.0, 5.0, 2.0]:                   # segment durations (s)
 
 ### Parameters
 
-**Table B.2 - Lab 2 parameters**
+**Table B.3 - Lab 2 parameters**
 
 | Parameter | Value |
 | --- | --- |
@@ -480,6 +483,9 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 
 ![Figure B.7 - Periodogram with detection thresholds](../results/graphs/lab2/figure_B_03.png)
 
+
+**Table B.4 - Detection thresholds**
+
 | Threshold $\gamma$ | $P_{fa} = e^{-\gamma}$ | Threshold value | Detected? |
 | --- | --- | --- | --- |
 | 3.0 | 0.050 | 2.08 | Yes (ratio = 26,788) |
@@ -490,6 +496,9 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 
 ![Figure B.8 - Welch averaging progression](../results/graphs/lab2/figure_B_04.png)
 
+
+**Table B.5 - Welch progression**
+
 | Segment | $L$ | $\Delta f$ (Hz) | Relative variance | Spectrum appearance |
 | --- | --- | --- | --- | --- |
 | Full (1200 s) | 1 | 0.0008 | 1.000 | Ragged, ±10 dB fluctuations |
@@ -498,6 +507,9 @@ Figure B.7 shows the periodogram with detection thresholds. The tone at 10 Hz pr
 | 2 s | 1199 | 0.500 | 0.001 | Smoothest, but tone peak is wide |
 
 ### Verification
+
+
+**Table B.6 - Verification**
 
 | Prediction (Volume A) | Measured | Confirmed? |
 | --- | --- | --- |
@@ -521,6 +533,19 @@ Welch's method demonstrates the resolution-variance tradeoff: 5-second segments 
 Lab 1 showed leakage from off-bin tones under the rectangular window. This lab derives *why* leakage occurs (the Dirichlet kernel) and *how* the cosine-sum windows suppress it. All derivations use the periodic convention ($M$) as justified in Section A.3.3. Appendix B provides the symmetric ($M-1$) derivation and proves the two conventions converge as $M \to \infty$.
 
 ### Setup
+
+
+### Parameters
+
+**Table B.7 - Lab 3 parameters**
+
+| Parameter | Value |
+| --- | --- |
+| $f_s$ (Hz) | 250 |
+| Window length $M$ (samples) | 256 (1.024 s) |
+| Zero-pad factor | 2048x |
+| Windows analyzed | Rectangular, Hann, Hamming, Blackman |
+| Convention | Periodic ($M$) |
 
 All derivations use $M = 256$ samples (≈ 1.024 s at $f_s = 250$ Hz - the typical EEG STFT epoch length). All spectra are normalized by $M$ so that the main-lobe peak is 1. Graphs are rendered at high zero-pad ($2048 \times M$) for visual smoothness. Code and figures: `src/lab3_windows/lab3.py`.
 
@@ -669,6 +694,9 @@ In dB: $20\log_{10}(2/(3\pi)) = -13.5$ dB.
 
 **Comparison:**
 
+
+**Table B.8 - Side-lobe strength comparison**
+
 | Method | Bin position | Magnitude | dB |
 | --- | --- | --- | --- |
 | (a) True maximum | 1.430 | 0.21724 | −13.3 |
@@ -699,7 +727,7 @@ Equation (B.15) decays as $1/k$, which is $1/\omega$ since $\omega \propto k$. I
 
 We collect the actual positions and magnitudes of the first 6 side-lobe maxima and fit a line on the log-log plot.
 
-**Table B.4 - Side-lobe maxima of the Dirichlet kernel ($M = 256$)**
+**Table B.9 - Side-lobe maxima of the Dirichlet kernel ($M = 256$)**
 
 | Lobe | Actual bin | Midpoint approx | Actual magnitude | $(2k+1)\pi$ approx | Actual dB | Approx dB |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -710,7 +738,7 @@ We collect the actual positions and magnitudes of the first 6 side-lobe maxima a
 | 5 | 5.481 | 5.5 | 0.05802 | 0.05787 | −24.7 | −24.8 |
 | 6 | 6.484 | 6.5 | 0.04908 | 0.04897 | −26.2 | −26.2 |
 
-Table B.4 confirms that the $(2k+1)\pi$ approximation (Equation (B.15)) is excellent for $k \geq 2$ - within 0.2 dB. The deviation is largest at $k = 1$ (the first side lobe), where the skew effect is strongest.
+Table B.9 confirms that the $(2k+1)\pi$ approximation (Equation (B.15)) is excellent for $k \geq 2$ - within 0.2 dB. The deviation is largest at $k = 1$ (the first side lobe), where the skew effect is strongest.
 
 **Regression code:**
 
@@ -726,6 +754,9 @@ dB_per_octave = slope * 20 * np.log10(2)                  # convert to dB/octave
 **Results** (Figure B.12):
 
 ![Figure B.12 - Side-lobe decay analysis](../results/graphs/lab3/figure_B_12.png)
+
+
+**Table B.10 - Decay regression results**
 
 | Regression method | Slope | R² | dB/octave |
 | --- | --- | --- | --- |
@@ -873,7 +904,7 @@ Five terms, one shared numerator. The denominator has 0/0 forms at bins $\pm 1$ 
 
 **Summary: the pure sine forms.**
 
-**Table B.5 - Pure sine form expressions**
+**Table B.11 - Pure sine form expressions**
 
 All windows share the numerator $|\sin(\omega M/2)|$. The bracket $[\cdots]$ is the weighted sum of $1/\sin$ terms. Let $\alpha = \omega/2$ for compactness.
 
@@ -903,7 +934,7 @@ $$
 
 Every window in the cosine-sum family is: one shared $\sin(\omega M/2)$ numerator (which sets the nulls), multiplied by a weighted sum of $1/\sin$ terms with shifted arguments (which sets the side-lobe structure). The window design problem reduces to choosing the weights that produce the desired cancellation pattern.
 
-**Why Hamming's rolloff is slow despite its low side lobes.** From Table B.5, Hann and Hamming have the same three-term structure. At large $\omega$, each $1/\sin$ term behaves as $1/(\omega/2 + \text{shift}) \approx 2/\omega$. The three terms combine as:
+**Why Hamming's rolloff is slow despite its low side lobes.** From Table B.11, Hann and Hamming have the same three-term structure. At large $\omega$, each $1/\sin$ term behaves as $1/(\omega/2 + \text{shift}) \approx 2/\omega$. The three terms combine as:
 
 For Hann: $0.5 + 0.25 + 0.25 = 1.0$ - but the signs of the shifted terms (after accounting for the full complex expression) produce cancellation at order $1/\omega$ and $1/\omega^2$, leaving a residual at $1/\omega^3$. This happens because $w[0] = w[M-1] = 0$, so the window and its first derivative vanish at the edges.
 
@@ -929,7 +960,7 @@ This is the main-lobe/side-lobe tradeoff from Section A.3.4, now derived from fi
 
 **Summary of derived properties:**
 
-**Table B.6 - Window properties derived in Lab 3**
+**Table B.12 - Window properties derived in Lab 3**
 
 | Window | Formula (shifted Dirichlet kernels) | Main-lobe width (bins) | Peak side-lobe (dB) | Rolloff | Edge value |
 | --- | --- | --- | --- | --- | --- |
@@ -1029,7 +1060,7 @@ Full source: `src/lab4_stft/lab4.py`.
 
 ### Parameters
 
-**Table B.7 - Lab 4 parameters**
+**Table B.13 - Lab 4 parameters**
 
 | Parameter | Experiment A | Experiment B | Experiment C |
 | --- | --- | --- | --- |
@@ -1064,6 +1095,9 @@ Figures B.16-B.19 show the spectrogram of the same chirp at four window lengths,
 
 ![Figure B.19 - M=1250 (5.0 s): very thin diagonal, Δf=0.4 Hz, but staircase steps in time](../results/graphs/lab4/figure_B_19.png)
 
+
+**Table B.14 - Heisenberg tradeoff**
+
 | Window $M$ (samples) | $\Delta t$ (s) | $\Delta f$ (Hz) | $\Delta t \cdot \Delta f$ | Diagonal appearance |
 | --- | --- | --- | --- | --- |
 | 125 (0.5 s) | 0.50 | 4.00 | 2.0 | Thick, fuzzy - good time steps |
@@ -1082,6 +1116,9 @@ Figures B.20-B.22 show the same chirp + burst signal analyzed with $M = 256$ at 
 ![Figure B.21 - 50% overlap: COLA satisfied, uniform coverage](../results/graphs/lab4/figure_B_21.png)
 
 ![Figure B.22 - 75% overlap: smoother but no sharper than 50%](../results/graphs/lab4/figure_B_22.png)
+
+
+**Table B.15 - Overlap comparison**
 
 | Overlap | Hop $H$ | Columns | Segments per sample | Observation |
 | --- | --- | --- | --- | --- |
@@ -1103,6 +1140,9 @@ Figures B.24-B.25 show the same signal analyzed with a short window and a long w
 
 ![Figure B.25 - Long window M=1250 (5.0 s): chirp sharp, burst smeared far beyond true extent](../results/graphs/lab4/figure_B_25.png)
 
+
+**Table B.16 - Multi-scale comparison**
+
 | Window | $\Delta t$ (s) | $\Delta f$ (Hz) | Burst | Chirp |
 | --- | --- | --- | --- | --- |
 | Short ($M = 125$) | 0.50 | 4.00 | Localized within reference lines | Smeared into a broad band |
@@ -1111,6 +1151,9 @@ Figures B.24-B.25 show the same signal analyzed with a short window and a long w
 The short window captures the burst correctly (energy stays within the white dashed lines) but smears the chirp into a thick band. The long window sharpens the chirp into a thin diagonal but smears the burst across the entire 10-second view - far beyond its true 2-second extent. No single window captures both: the burst needs $\Delta t \leq 1$ s, the chirp needs $\Delta f \leq 1$ Hz, but $\Delta t \cdot \Delta f = 2$ means you cannot have both simultaneously.
 
 ### Verification
+
+
+**Table B.17 - Verification**
 
 | Prediction (Volume A) | Measured | Confirmed? |
 | --- | --- | --- |
@@ -1144,6 +1187,9 @@ $$
 with $f_1 = 10$ Hz (alpha band) and $f_2 = f_1 + \Delta$. The separation $\Delta$ is swept across four values: 0.5 Hz, 2.0 Hz, 3.0 Hz, 5.0 Hz. For each separation, the STFT is computed with three windows (Rectangular, Hann, Blackman) at $M = 256$ (1.024 s) with 50% overlap.
 
 **Resolution limits at $M = 256$, $f_s = 250$ Hz:**
+
+
+**Table B.18 - Results**
 
 | Window | $\beta$ | $\Delta f_{\min} = \beta \cdot f_s / M$ (Hz) |
 | --- | --- | --- |
@@ -1183,7 +1229,7 @@ Full source: `src/lab5_resolution/lab5.py`.
 
 ### Parameters
 
-**Table B.8 - Lab 5 parameters**
+**Table B.19 - Lab 5 parameters**
 
 | Parameter | Value |
 | --- | --- |
@@ -1220,6 +1266,9 @@ Figure B.26 shows the time-domain beat patterns at each separation.
 ![Figure B.30 - Δ = 5.0 Hz: all windows clearly resolved](../results/graphs/lab5/figure_B_30.png)
 
 ### Verification
+
+
+**Table B.20 - Resolution test results**
 
 | Separation $\Delta$ (Hz) | Rectangular ($\beta = 1$, limit 0.98 Hz) | Hann ($\beta = 2$, limit 1.95 Hz) | Blackman ($\beta = 3$, limit 2.93 Hz) |
 | --- | --- | --- | --- |
@@ -1342,7 +1391,7 @@ Full source: `src/lab6_autocorrelation/lab6.py`.
 
 ### Parameters
 
-**Table B.9 - Lab 6 parameters**
+**Table B.21 - Lab 6 parameters**
 
 | Parameter | Experiment A & B | Experiment C |
 | --- | --- | --- |
@@ -1390,6 +1439,9 @@ Figure B.35 shows their autocorrelations overlaid. The two curves are identical 
 Phase is gone. The autocorrelation tells you *which* frequency is present (10 Hz) and *how strong* it is, but not *when it starts* or *what phase it has*. Their power spectra $|X[k]|^2$ are also identical (difference: $4.66 \times 10^{-10}$).
 
 ### Verification
+
+
+**Table B.22 - Verification**
 
 | Prediction (Volume A) | Measured | Confirmed? |
 | --- | --- | --- |
@@ -1501,6 +1553,9 @@ $$
 \epsilon = \frac{M}{M-1} - 1 = \frac{1}{M-1} \tag{AB.10}
 $$
 
+
+**Table AB.1 - M vs M-1 convergence**
+
 | $M$ | $\epsilon$ | Edge value difference | Peak side-lobe difference |
 | --- | --- | --- | --- |
 | 32 | 0.0323 | 0.0048 | 0.8 dB |
@@ -1512,6 +1567,9 @@ $$
 At $M = 256$ (the EEG-typical window length), the difference is 0.11 dB - invisible in any practical measurement. At $M = 1024$, it drops to 0.03 dB.
 
 ## AB.4 Summary
+
+
+**Table AB.2 - Convention comparison**
 
 | | Periodic ($M$, Lab 3) | Symmetric ($M-1$, this appendix) |
 | --- | --- | --- |
