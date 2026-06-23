@@ -487,7 +487,7 @@ for seg_dur in [1200, 20.0, 5.0, 2.0]:                   # segment durations (s)
 
 ![Figure B.5 - DFT bin distributions under white Gaussian noise](../../results/graphs/lab2/figure_B_01.png)
 
-- *Magnitude* $|X[k]|$: Rayleigh distribution - zero at origin, single peak, long tail.
+- *Magnitude* $|X[k]|$: Rayleigh distribution - zero at the origin, a peak near the left, then a long tail stretching to the right. The bulk of the mass is concentrated at low magnitudes. This is not bell-shaped: the distribution is asymmetric because magnitudes cannot be negative.
 - *Phase* $\angle X[k]$: uniform on $(-\pi, \pi]$. The theoretical line at $1/(2\pi) \approx 0.159$ matches the histogram.
 - *Power* $|X[k]|^2$: exponential distribution. The theoretical curve ($\lambda = 1/(N\sigma^2)$) overlays the histogram closely. Measured mean: 300,413. Predicted: $N\sigma^2 = 300\,000$. Deviation: 0.14%.
 

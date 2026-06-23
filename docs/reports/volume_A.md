@@ -535,13 +535,15 @@ We flag it here because it will reappear in A.8, where the SPWVD's smoothing win
 
 Consider a signal that is pure white Gaussian noise: $x[n] \sim \mathcal{N}(0, \sigma_x^2)$, with each sample independent. What does its DFT look like?
 
-Each DFT bin is a weighted sum of $N$ independent Gaussian samples (Equation (A.12)). By linearity, $X[k]$ is itself a complex Gaussian random variable. Its real and imaginary parts are independent, each with variance $N\sigma_x^2 / 2$:
+**How noise is generated.** In code, white Gaussian noise is produced by a pseudorandom number generator (PRNG). NumPy's `default_rng(seed)` initializes the Mersenne Twister algorithm to a deterministic state set by the seed. Calling `rng.normal(0, sigma, N)` draws $N$ samples from $\mathcal{N}(0, \sigma^2)$ — each sample is computed from the PRNG's internal state, which advances deterministically. The parameter $\sigma$ controls the spread: larger $\sigma$ means larger typical sample values, and the variance of the signal is $\sigma^2$. The seed ensures reproducibility — the same seed produces the identical noise sequence on any machine, so every figure in this report can be regenerated exactly. Different seeds produce statistically equivalent but numerically different sequences. The samples are independent and identically distributed (i.i.d.) by construction: each draw uses fresh PRNG state with no dependence on previous samples.
+
+**From samples to DFT.** Each DFT bin is a weighted sum of $N$ independent Gaussian samples (Equation (A.12)). By linearity, $X[k]$ is itself a complex Gaussian random variable. Its real and imaginary parts are independent, each with variance $N\sigma_x^2 / 2$:
 
 $$
 \text{Re}\{X[k]\}, \; \text{Im}\{X[k]\} \sim \mathcal{N}\!\left(0, \; \frac{N\sigma_x^2}{2}\right) \tag{A.32}
 $$
 
-The **magnitude** $|X[k]|$ follows a Rayleigh distribution, and the **phase** $\angle X[k]$ is uniformly distributed on $(-\pi, \pi]$. The phase carries no information about the noise - it is purely random, uniformly spread.
+The **magnitude** $|X[k]|$ follows a **Rayleigh distribution**. The Rayleigh is not bell-shaped like a Gaussian - it is asymmetric: zero at the origin, a peak near $\sigma\sqrt{N}$, then a long tail stretching toward large values. The bulk of the mass is concentrated at low magnitudes. This shape is intrinsic: magnitudes cannot be negative, so the distribution is bounded at zero and skewed toward the right. The **phase** $\angle X[k]$ is uniformly distributed on $(-\pi, \pi]$. The phase carries no information about the noise - it is purely random, uniformly spread.
 
 The quantity we care about for spectral analysis is the **power** at each bin:
 
@@ -669,6 +671,21 @@ Table A.6 shows the tradeoff for our lab signal parameters. A single periodogram
 The practical choice for EEG depends on what needs to be resolved. For separating the standard bands (δ, θ, α, β, γ), the boundaries are at 4, 8, 13, and 30 Hz - separations of at least 4 Hz. A segment length of $M = 1250$ (5 s, $\Delta f = 0.40$ Hz) resolves these boundaries comfortably with nearly 500 averages. For finer structure within a band - say, distinguishing 9 Hz from 11 Hz alpha - longer segments are needed ($M = 5000$, giving $\Delta f = 0.10$ Hz).
 
 Welch's method does not bypass the uncertainty in each bin; it trades frequency detail for statistical reliability. The total energy is still conserved (Equation (A.21) applies to each segment), and the noise floor estimated from the averaged spectrum is far more stable than from a single periodogram. Detection via Equation (A.37) applied to a Welch-averaged spectrum is correspondingly more reliable.
+
+### A.4.5 Bin Power versus Power Spectral Density
+
+Two quantities appear throughout this report. They are related but serve different purposes, and conflating them leads to incorrect conclusions.
+
+**Raw bin power** $|X[k]|^2$ is the squared magnitude of the DFT at bin $k$. Its value depends on the signal length $N$: doubling $N$ (while keeping the signal the same) changes $|X[k]|^2$. Bin power is useful for comparing bins within the same DFT - "bin $k$ has more power than bin $j$" - because all bins share the same $N$. Labs 1 through 8 use bin power for this reason: every model signal has the same length, so direct comparison is valid.
+
+**Power spectral density (PSD)** normalizes bin power by the frequency resolution and window energy, producing a quantity in µV²/Hz that is independent of $N$. Two recordings of the same signal at different lengths give the same PSD curve. The Welch PSD is the standard estimator (Equation (A.40)).
+
+The distinction matters when reading plots:
+
+- A **bin power plot** ($|X[k]|^2$ versus $k$) shows how much power is in each bin. Comparing heights directly is valid.
+- A **PSD plot** (µV²/Hz versus Hz) shows how power is distributed across frequency. It is a density function. Comparing the curve height at two different frequencies tells you which region has higher power density, but not how much total energy each region contains. To get total energy in a frequency band, integrate the PSD over that band: $\text{band power} = \int_{f_1}^{f_2} \text{PSD}(f) \, df$, in µV².
+
+In Volume C, band power is computed by integrating the Welch PSD over each EEG band (delta: 0.5-4 Hz, theta: 4-8 Hz, etc.). The PSD plot shows spectral shape - where peaks are, what the slope is. The integrated band power shows energy distribution - what fraction of total energy is in each band. Both are needed; neither replaces the other.
 
 ## A.5 The STFT and Spectrograms
 

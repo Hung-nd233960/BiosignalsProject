@@ -45,9 +45,15 @@ This system was adopted after an early design where equations and figures shared
 
 **Proper Unicode in axis labels.** Write µV²/Hz, not uV^2/Hz. This was added after the instructor noted crude labels on early Volume C figures.
 
-**The Dual-Stack Rule.** Every spectral or time-frequency plot appears as a dual stack: linear scale first (physical units), dB second (dynamic range). Linear is primary; dB is supplementary. This was a founding rule, strengthened for Volume C where physical units (µV, µV²/Hz) are non-negotiable.
+**"dB" versus "10 log₁₀" labeling.** The instructor pointed out that labeling an axis "dB" implies a defined physical reference. If the reference isn't stated, the number is meaningless. This led to a case-by-case rule: use "dB re 1 µV²/Hz" for real EEG PSD (the reference is physical and explicit, same convention as dB SPL in acoustics); use "10 log₁₀(·)" for model signals and WVD values where no physical reference exists. This distinction is not pedantic — it determines whether the axis label is a measurement or just a visualization.
+
+**The Dual-Stack Rule (revised).** Originally, every spectral plot was a dual stack (linear + dB in one figure). After instructor feedback that many dB panels were excessive and didn't add information, the rule was revised: both linear and log-scale plots are still produced as separate figures, but the log panel is numbered and included in the report **only when it reveals something the linear panel hides** (burst structure in C.3, side-lobe decay in Lab 3, 1/f slope in C.2). Otherwise it stays in `results/graphs/` as an unnumbered draft. Linear remains primary and is always included.
 
 **Scale choice must be justified.** "dB is used because the burst and chirp differ in amplitude" or "linear is used because both tones have equal amplitude." Added after Lab 5 where we found linear scale was cleaner for equal-amplitude tones.
+
+**PSD density versus band power.** The instructor flagged that the Welch PSD (µV²/Hz) should not be used to qualitatively compare energy across bands by eyeballing curve heights — it is a density function, and bands have different widths. This led to an explicit rule: the PSD plot is for spectral shape (peaks, slopes, 1/f analysis). Energy comparison must use integrated band power (µV²), computed by `compute_band_power()`. The chain — PSD (for shape) → integrate (for energy) → percentage (for comparison) — must be narrated explicitly in the report text so the reader knows which number answers which question. This distinction was added to both CLAUDE.md (as a standalone section) and Volume A (new Section A.4.5 "Bin Power versus Power Spectral Density").
+
+**scipy spectrogram defaults to PSD scaling.** `scipy.signal.spectrogram` uses `scaling='density'` (µV²/Hz) by default, not `scaling='spectrum'` (µV² per bin). Both show the same shape — the difference is a constant factor. The choice matters only when reading numbers off the plot: density requires integration over bandwidth, spectrum requires summation. We use density throughout for consistency with `compute_band_power()`. This default was never stated in the report until this rule was added.
 
 **Colorbars mandatory on spectrograms.** With labeled units. When multiple spectrograms appear in one figure, one shared colorbar with a shared color range - not one per panel.
 

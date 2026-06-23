@@ -99,7 +99,7 @@ Additional requirements:
 
 - **Well-behaved and continuous.** No discontinuities in the signal. If a signal is piecewise, ensure smooth transitions.
 - **Math first.** Before any code, show the explicit mathematical formula for the model signal (e.g. the sum-of-sines expression). The formula is the specification; the code implements it.
-- **Time-domain first.** Every signal must have its time-domain waveform plotted and inspected before any spectral or time-frequency analysis. This is the control step — no skipping it.
+- **Time-domain first — no exceptions.** Every signal must have its time-domain waveform plotted and inspected before any spectral or time-frequency analysis. This applies to all signals: tones, chirps, noise, transients, real EEG, and even pure white noise. A noise signal that looks clipped, saturated, or has unexpected structure would corrupt every downstream result. The time-domain plot is the sanity check — if the signal looks wrong here, nothing after it matters. No signal enters the DFT, STFT, or WVD without being seen in the time domain first.
 
 ---
 
@@ -140,21 +140,65 @@ Each counter is sequential within its type within each volume. **Never write a b
 - **Every spectrogram and heatmap must have a colorbar** with labeled units (e.g. "Power (dB)", "Power (linear)"). The scale choice (linear or dB) must be **justified in the report text** — e.g. "dB is used because the burst and chirp differ in amplitude" or "linear is used because both tones have equal amplitude." When multiple spectrograms appear in one figure, use **one shared colorbar** with a shared color range — not one per panel.
 - **Window lengths in samples must always state the equivalent duration** — e.g. "$M = 256$ (1.024 s)" or "$M = 1250$ (5.0 s)". Never a bare sample count.
 
+### Logarithmic Scale Labeling
+
+**"dB" versus "10 log₁₀(·)" — case by case.** The label "dB" implies a defined physical reference. Use it only when the reference exists and is stated. Otherwise, label the axis as the mathematical transformation it is.
+
+| Plot type | Reference? | Axis label |
+| --- | --- | --- |
+| PSD of real EEG (µV²/Hz) | Yes (1 µV²/Hz) | **dB re 1 µV²/Hz** |
+| Window spectrum (Lab 3, normalized to peak) | Yes (peak = 0 dB) | **dB (relative to peak)** |
+| PSD of model signal (no physical units) | No | **10 log₁₀(power)** |
+| WVD / SPWVD (can be negative) | No | **10 log₁₀(\|WVD\|)** |
+
+"dB re 1 µV²/Hz" is a legitimate, defensible unit — same convention as dB SPL (re 20 µPa) in acoustics. The "re" defines the reference; the number converts back to physical units unambiguously.
+
+**Dimensionless signals (Volume B model signals) should not use "dB."** The log transformation is still useful — it compresses dynamic range so a -60 dB side lobe is visible next to a 0 dB main lobe. The information is the same. But the label "dB" implies a physical reference that dimensionless signals do not have. Use **10 log₁₀(·)** instead. Same plot, same numbers, honest label.
+
 ### The Dual-Stack Rule
 
-Every spectral or time-frequency plot must appear as a **dual stack: linear scale first, then log/dB scale below it.**
+Both linear and log-scale plots are produced for every spectral or time-frequency figure. They are rendered as **separate figures**, not stacked in one panel.
 
-- The **linear-scale plot is primary** — it shows the physical quantity in its real units and is always presented first.
-- The **log/dB-scale plot is secondary** — it reveals dynamic range and low-level structure, but is always shown *after* the linear representation.
+- The **linear-scale plot is primary** — it shows the physical quantity in its real units and is always presented first. It is always numbered and included in the report.
+- The **log-scale plot is secondary** — it reveals dynamic range and low-level structure. It is numbered and included **only when it reveals something the linear plot hides** (e.g. burst structure in C.3, side-lobe decay in Lab 3). Otherwise it stays in `results/graphs/` as an unnumbered draft.
 
-For real EEG signals (Volume C), this is non-negotiable:
+**When to include the log-scale plot:**
 
-- Amplitude in **µV** (linear first).
-- Power spectral density in **µV²/Hz** (linear first), then dB scale.
-- Time-frequency representations in physical units (linear first), then log/dB.
-- The log/dB plot exists to support interpretation, not to replace the physical representation.
+- C.3 full spectrogram — burst structure invisible in linear, obvious in log. **Include.**
+- Lab 3 side-lobe analysis — decay rate measured in dB/octave. **Include.**
+- C.2 log-log PSD — 1/f slope is a log-log measurement. **Include.**
+- Lab 1 on-bin/off-bin — linear shows everything. **Draft only.**
+- WVD/SPWVD — log panel shows misleading circular artifacts. **Draft only, or include with explicit caveat.**
 
-For model signals (Volume B), the same dual-stack applies. Linear scale grounds the reader in the actual signal; log/dB scale exposes features that linear compresses.
+For real EEG signals (Volume C):
+
+- Amplitude in **µV** (linear).
+- Power spectral density in **µV²/Hz** (linear), then **dB re 1 µV²/Hz** when justified.
+- Time-frequency representations in physical units (linear), then log scale when justified.
+
+For model signals (Volume B), the same principle applies. Linear scale grounds the reader in the actual signal; log scale is included only when it adds information.
+
+---
+
+## PSD Density versus Band Power
+
+**PSD (µV²/Hz) is a density, not energy.** The PSD plot shows how power is distributed across frequency — its shape reveals peaks, slopes, and spectral structure. But comparing the curve height at two frequencies does not tell you which band has more total energy, because bands have different widths.
+
+**To compare energy across bands, integrate:**
+
+$$\text{band power} = \sum_{k \in \text{band}} \text{PSD}[k] \cdot \Delta f \qquad \text{(µV²/Hz × Hz = µV²)}$$
+
+The result is in µV² — actual energy, not density. This is what `compute_band_power()` does. The bar chart (C.1 Figure C.6) shows integrated band power, not PSD heights.
+
+**The chain in the report:**
+
+1. **PSD plot** (µV²/Hz) → for looking at spectral shape (where are peaks, what is the slope)
+2. **Integrate over band** → µV² (energy per band)
+3. **Divide by total** → % (relative energy distribution: "91.8% delta")
+
+Step 1 is for shape. Steps 2-3 are for energy comparison. Both are needed; neither replaces the other. When discussing energy distribution in the report text, always reference the integrated values, not the PSD curve height.
+
+**scipy's `spectrogram` uses PSD scaling by default** (`scaling='density'`). This matches the Welch convention. The alternative (`scaling='spectrum'`, µV² per bin) shows the identical shape with a different normalization. The choice only matters when reading numbers off the plot — density requires integration, spectrum requires summation. We use density throughout for consistency with `compute_band_power()`.
 
 ---
 

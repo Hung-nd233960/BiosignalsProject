@@ -1,11 +1,3 @@
----
-marp: true
-theme: default
-paginate: true
-math: mathjax
-style: |
-  section h2 { margin-top: 0.1em; }
----
 
 # From the DFT to the SPWVD
 ## Time-Frequency Analysis Applied to Neonatal EEG
@@ -15,8 +7,6 @@ style: |
 Digital Biosignal Processing - Final Report
 
 ---
-
-<!-- Part 0 -->
 
 ## Why Time-Frequency Analysis?
 
@@ -60,8 +50,6 @@ $$\text{DFT} \xrightarrow{\text{+time}} \text{STFT} \xrightarrow{\text{+sharpnes
 - The DFT is sufficient only for the first class; each additional class demands a more powerful tool.
 
 ---
-
-<!-- Part 1 -->
 
 ## Part 1: Volume A - Theory
 
@@ -403,8 +391,6 @@ $$\text{SPWVD}_x[n, k] = \sum_m h[m] \left(\sum_p g[p] \, z[n\!+\!p\!+\!m] \, z^
 
 ---
 
-<!-- Part 2 -->
-
 ## Part 2: Volume B - Laboratories
 
 Eight labs validate the theory on model signals with known ground truth.
@@ -427,7 +413,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 1: On-Bin Capture Is Perfect
 
-![w:900](../../results/graphs/lab1/figure_B_02.png)
+![](../../results/graphs/lab1/figure_B_02.png){ width=90% }
 
 - The 10 Hz tone at $f_s = 250$ Hz, $N = 5000$ lands exactly on bin 200 ($\Delta f = 0.05$ Hz).
 - All energy concentrates in a single DFT bin; every other bin reads exactly zero.
@@ -437,7 +423,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 1: Off-Bin Leakage Reveals the Dirichlet Kernel
 
-![w:900](../../results/graphs/lab1/figure_B_02.png)
+![](../../results/graphs/lab1/figure_B_02.png){ width=90% }
 
 - The 10.5 Hz tone falls between bins 209 and 210, distributing energy across all $N$ bins.
 - The leakage pattern traces the Dirichlet kernel shape, confirming the theoretical prediction from Section A.2.
@@ -448,7 +434,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 1: Zero-Padding Interpolates but Does Not Resolve
 
-![w:900](../../results/graphs/lab1/figure_B_08.png)
+![](../../results/graphs/lab1/figure_B_08.png){ width=90% }
 
 - Zero-padding the 10 + 10.5 Hz signal produces two apparent peaks separated by 0.5 Hz.
 - The peaks appear resolved because zero-padding adds frequency samples between the original bins.
@@ -479,7 +465,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 2: Bin Power Matches the Exponential Distribution
 
-![w:900](../../results/graphs/lab2/figure_B_01.png)
+![](../../results/graphs/lab2/figure_B_01.png){ width=90% }
 
 - The histogram of bin powers from white noise follows the exponential distribution with measured CV = 1.00.
 - This confirms Section A.4: bin power fluctuates by 100% of its mean regardless of signal length.
@@ -490,7 +476,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 2: Welch Averaging Reduces Variance
 
-![w:900](../../results/graphs/lab2/figure_B_04.png)
+![](../../results/graphs/lab2/figure_B_04.png){ width=90% }
 
 - Welch averaging with $K$ segments reduces the standard deviation of the noise floor by $1/\sqrt{K}$.
 - The spectrum becomes visually flatter, making genuine peaks stand out above the reduced noise fluctuations.
@@ -520,7 +506,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 3: Dirichlet Kernel Anatomy
 
-![w:900](../../results/graphs/lab3/figure_B_11.png)
+![](../../results/graphs/lab3/figure_B_11.png){ width=90% }
 
 - The Dirichlet kernel displays the main lobe (width $4\pi/M$), side lobes (first at $-13.3$ dB), and nulls at integer multiples of $2\pi/M$.
 - Side-lobe decay follows $-20$ dB/octave, determined by the first-order zero at the origin.
@@ -541,7 +527,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 3: Window Comparison — Four Spectra Overlaid
 
-![w:900](../../results/graphs/lab3/figure_B_14.png)
+![](../../results/graphs/lab3/figure_B_14.png){ width=90% }
 
 - Rectangular ($-13$ dB, $-20$ dB/oct), Hann ($-32$ dB, $-60$ dB/oct), Hamming ($-43$ dB, $-20$ dB/oct), Blackman ($-58$ dB, $-60$ dB/oct).
 - Hann and Blackman achieve fast decay through higher-order zeros; Hamming optimizes the first side lobe only.
@@ -571,7 +557,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 4: Short Window — Good Time, Poor Frequency
 
-![w:900](../../results/graphs/lab4/figure_B_17.png)
+![](../../results/graphs/lab4/figure_B_17.png){ width=90% }
 
 - A short window ($M = 64$, 0.256 s) tracks the chirp trajectory closely in time.
 - The frequency axis is heavily blurred: $\Delta f = 7.81$ Hz, spanning nearly the entire chirp bandwidth.
@@ -582,7 +568,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 4: Long Window — Good Frequency, Poor Time
 
-![w:900](../../results/graphs/lab4/figure_B_18.png)
+![](../../results/graphs/lab4/figure_B_18.png){ width=90% }
 
 - A long window ($M = 1024$, 4.096 s) resolves frequency precisely: $\Delta f = 0.49$ Hz.
 - The chirp trajectory is smeared along the time axis by $\Delta t = 4.096$ s.
@@ -622,7 +608,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 5: Tones Above the Resolution Limit Are Resolved
 
-![w:900](../../results/graphs/lab5/figure_B_28.png)
+![](../../results/graphs/lab5/figure_B_28.png){ width=90% }
 
 - Two tones separated by more than $\Delta f_{\min} = 1.0$ Hz appear as two distinct horizontal lines on the spectrogram.
 - The separation is clearly visible in both the linear and dB representations.
@@ -662,7 +648,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 6: Phase-Blindness Demonstrated
 
-![w:900](../../results/graphs/lab6/figure_B_33.png)
+![](../../results/graphs/lab6/figure_B_33.png){ width=90% }
 
 - Two signals with identical frequency content but different phase relationships produce identical autocorrelations.
 - A cosine and a sine of the same frequency are indistinguishable by their autocorrelation.
@@ -673,7 +659,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 6: Cross-Correlation Detects Shared Components
 
-![w:900](../../results/graphs/lab6/figure_B_37.png)
+![](../../results/graphs/lab6/figure_B_37.png){ width=90% }
 
 - Two signals sharing a common 10 Hz component produce a cross-correlation peak with $\rho = 0.107$.
 - Components present in only one signal contribute no cross-correlation peak.
@@ -703,7 +689,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 7: Single Chirp — STFT Blurred, WVD Razor-Sharp
 
-![w:900](../../results/graphs/lab7/figure_B_40.png)
+![](../../results/graphs/lab7/figure_B_40.png){ width=90% }
 
 - The STFT produces a thick, blurred diagonal stripe limited by the Heisenberg bound ($\Delta t \cdot \Delta f = 2$).
 - The WVD produces a razor-sharp line tracking the instantaneous frequency with zero spread.
@@ -714,7 +700,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 7: Two Components — Cross-Terms at the Midpoint
 
-![w:900](../../results/graphs/lab7/figure_B_42.png)
+![](../../results/graphs/lab7/figure_B_42.png){ width=90% }
 
 - A chirp plus a constant-frequency tone produces a clean two-component STFT spectrogram.
 - The WVD shows both components sharply but adds an oscillating interference pattern at the midpoint.
@@ -725,7 +711,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 7: Real Versus Analytic Signal — DC Ghost Removal
 
-![w:900](../../results/graphs/lab7/figure_B_44.png)
+![](../../results/graphs/lab7/figure_B_44.png){ width=90% }
 
 - The real-valued signal's symmetric spectrum generates a cross-term at DC (the "self-ghost").
 - Computing the analytic signal via the Hilbert transform removes negative frequencies and eliminates the DC ghost.
@@ -756,7 +742,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 8: WVD to PWVD to SPWVD Progression
 
-![w:900](../../results/graphs/lab8/figure_B_46.png)
+![](../../results/graphs/lab8/figure_B_46.png){ width=90% }
 
 - **WVD** (top): sharp auto-terms with heavy cross-term contamination between all component pairs.
 - **PWVD** (middle): lag window $h$ smooths frequency, suppressing frequency-oscillating ghosts; time-oscillating ghosts survive.
@@ -767,7 +753,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 8: Two Impulses — Frequency-Oscillating Ghosts Suppressed
 
-![w:900](../../results/graphs/lab8/figure_B_49.png)
+![](../../results/graphs/lab8/figure_B_49.png){ width=90% }
 
 - Two impulses separated in time generate frequency-oscillating cross-terms in the WVD.
 - The PWVD (lag window only) suppresses these ghosts because it smooths along the frequency axis.
@@ -778,7 +764,7 @@ Eight labs validate the theory on model signals with known ground truth.
 
 ## Lab 8: Two-Knob Sweep — Independent Control
 
-![w:900](../../results/graphs/lab8/figure_B_47.png)
+![](../../results/graphs/lab8/figure_B_47.png){ width=90% }
 
 - Case 1 ($|h|=101$, $|g|=5$): strong frequency smoothing, sharp time resolution, but time-oscillating ghosts survive.
 - Case 2 ($|h|=25$, $|g|=31$): both axes smoothed moderately, both ghost types suppressed.
@@ -825,8 +811,6 @@ Eight labs validate the theory on model signals with known ground truth.
 - The complete toolchain is now validated and ready for application to real neonatal EEG in Volume C.
 
 ---
-
-<!-- Part 3 -->
 
 ## Part 3: Volume C - Real EEG Application
 
@@ -880,7 +864,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.1 Result: Time-Domain Plot
 
-![w:900](../../results/graphs/volume_c/c1/figure_C_02.png)
+![](../../results/graphs/volume_c/c1/figure_C_02.png){ width=90% }
 
 - The full 19-minute CZ recording shows large-amplitude bursts separated by quiet intervals.
 - Peak-to-peak amplitude reaches approximately $\pm 200$ $\mu$V during bursts.
@@ -891,7 +875,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.1 Result: Welch PSD Dual-Stack
 
-![w:900](../../results/graphs/volume_c/c1/figure_C_05.png)
+![](../../results/graphs/volume_c/c1/figure_C_05.png){ width=90% }
 
 - The Welch PSD (linear top, dB bottom) shows overwhelming delta-band dominance.
 - Power drops steeply above 4 Hz, with no visible alpha or beta peaks.
@@ -902,7 +886,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.1 Result: Band Power Distribution
 
-![w:900](../../results/graphs/volume_c/c1/figure_C_06.png)
+![](../../results/graphs/volume_c/c1/figure_C_06.png){ width=90% }
 
 - Delta (0.5-4 Hz): **91.8%** of total power.
 - Theta (4-8 Hz): 5.7%. Alpha (8-13 Hz): 1.0%. Beta (13-30 Hz): 1.0%.
@@ -932,7 +916,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.2 Result: Log-Log PSD with 1/f Fit
 
-![w:900](../../results/graphs/volume_c/c2/figure_C_09.png)
+![](../../results/graphs/volume_c/c2/figure_C_09.png){ width=90% }
 
 - On a log-log scale, the PSD follows $1/f^{3.18}$ from 5-40 Hz.
 - The slope ($-3.18$) is steeper than pink noise ($-1$) or brown noise ($-2$).
@@ -942,7 +926,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.2 Result: Delta-Band Zoom
 
-![w:900](../../results/graphs/volume_c/c2/figure_C_10.png)
+![](../../results/graphs/volume_c/c2/figure_C_10.png){ width=90% }
 
 - Zooming into the 0-5 Hz range reveals distinct peaks at 0.4, 0.5, and 0.6 Hz.
 - These peaks rise above the 1/f fit, confirming they represent quasi-periodic delta oscillations.
@@ -972,7 +956,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.3 Result: Full-Recording Spectrogram
 
-![w:900](../../results/graphs/volume_c/c3/figure_C_12.png)
+![](../../results/graphs/volume_c/c3/figure_C_12.png){ width=90% }
 
 - The full 19-minute spectrogram reveals delta bursts as bright vertical stripes concentrated below 4 Hz.
 - The burst pattern is clearly non-stationary: bursts occur irregularly with quiet gaps between them.
@@ -982,7 +966,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.3 Result: Zoomed 60-Second Segment
 
-![w:900](../../results/graphs/volume_c/c3/figure_C_13.png)
+![](../../results/graphs/volume_c/c3/figure_C_13.png){ width=90% }
 
 - Zooming to 60 seconds reveals individual burst events with duration of 5-15 seconds each.
 - Between bursts, the spectrogram shows only low-level broadband activity (the inter-burst interval).
@@ -993,7 +977,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.3 Result: Burst Detection and Overlay
 
-![w:900](../../results/graphs/volume_c/c3/figure_C_16.png)
+![](../../results/graphs/volume_c/c3/figure_C_16.png){ width=90% }
 
 - A burst threshold of $2 \times$ median delta power ($= 3479$ $\mu$V$^2$) identifies burst episodes.
 - **19%** of the recording is classified as burst; **81%** is quiet (inter-burst interval).
@@ -1023,7 +1007,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.4 Result: Cross-Correlation Versus CZ
 
-![w:900](../../results/graphs/volume_c/c4/figure_C_20.png)
+![](../../results/graphs/volume_c/c4/figure_C_20.png){ width=90% }
 
 - All auxiliary-vs-CZ correlation coefficients are below $\rho = 0.03$.
 - This confirms that no detectable ECG, EMG, or EOG artifact contaminates the CZ channel.
@@ -1057,7 +1041,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 - **First attempt:** The strongest burst (t = 842.5 s, power = 15597 $\mu$V$^2$, 8.7x median) is rejected because it contains 44 flat samples indicating amplifier saturation.
 - **Fallback:** The 75th percentile burst (t = 65.0 s, power = 5435 $\mu$V$^2$, 3.0x median) is clean with no flat samples or discontinuities.
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_23.png)
+![](../../results/graphs/volume_c/c5/figure_C_23.png){ width=90% }
 
 - The accepted segment contains approximately 3 clear delta cycles over 2 seconds. It is suitable for WVD/SPWVD analysis.
 
@@ -1065,7 +1049,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.5: What Does the STFT Show on This Segment?
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_24.png)
+![](../../results/graphs/volume_c/c5/figure_C_24.png){ width=90% }
 
 - The STFT of the selected burst segment shows a broad delta blob, limited by Heisenberg uncertainty.
 - Frequency resolution at $M = 200$ (1.0 s): $\Delta f = 2.0$ Hz, spanning the entire delta band width.
@@ -1076,7 +1060,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.5: What Does the Raw WVD Show?
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_25.png)
+![](../../results/graphs/volume_c/c5/figure_C_25.png){ width=90% }
 
 - The raw WVD of the clean burst segment shows severe cross-term contamination.
 - **49% of all values are negative.** The WVD is not a valid power distribution for this signal.
@@ -1087,7 +1071,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.5: What Does the SPWVD Recover?
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_26.png)
+![](../../results/graphs/volume_c/c5/figure_C_26.png){ width=90% }
 
 - The SPWVD with calibrated windows ($|h| = 65$, $|g| = 31$) produces the sharpest readable time-frequency view.
 - The **linear-scale** representation shows individual delta cycles resolved in time, with frequency content concentrated below 2 Hz.
@@ -1098,7 +1082,7 @@ Each section asks a question, explains why a specific tool answers it, then pres
 
 ## C.5: Three-Way Comparison — STFT Versus WVD Versus SPWVD
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_27.png)
+![](../../results/graphs/volume_c/c5/figure_C_27.png){ width=90% }
 
 - **STFT:** Blurred but readable, no artifacts. The safe baseline.
 - **WVD:** Sharp auto-terms visible but corrupted by oscillating cross-terms. Uninterpretable.
@@ -1150,8 +1134,6 @@ Each section asks a question, explains why a specific tool answers it, then pres
 - The scope boundary is a principled choice, not an oversight. The connection to future work is explicit.
 
 ---
-
-<!-- Part 4 -->
 
 ## Part 4: Closing
 

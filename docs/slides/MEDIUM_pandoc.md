@@ -1,11 +1,3 @@
----
-marp: true
-theme: default
-paginate: true
-math: mathjax
-style: |
-  section h2 { margin-top: 0.1em; }
----
 
 # From the DFT to the SPWVD
 
@@ -35,8 +27,6 @@ Digital Biosignal Processing - Final Report
 - The progression from DFT to STFT to SPWVD addresses each of these challenges incrementally.
 
 ---
-
-<!-- Part 1 -->
 
 ## The Tool Progression at a Glance
 
@@ -85,7 +75,7 @@ $$\Delta f = \frac{f_s}{N} \qquad \text{(A.6)}$$
 
 ## Window Comparison: Resolution versus Leakage
 
-![w:900](../../results/graphs/lab3/figure_B_14.png)
+![](../../results/graphs/lab3/figure_B_14.png){ width=90% }
 **Figure B.14** - Window spectra comparison: Rectangular, Hann, Hamming, Blackman.
 
 - First side-lobe levels: $-13$ dB (Rectangular), $-32$ dB (Hann), $-43$ dB (Hamming), $-58$ dB (Blackman).
@@ -203,8 +193,6 @@ Each row addresses a specific limitation of the row above it.
 
 ---
 
-<!-- Part 2: Volume B Highlights -->
-
 ## Lab 1 Purpose: What Happens When a Frequency Falls Between DFT Bins?
 
 - The DFT produces exact magnitudes only when a signal frequency coincides with a bin center (the on-bin condition, $f = k \cdot f_s / N$).
@@ -216,7 +204,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 1 Result: Off-Bin Leakage and the Limits of Zero-Padding
 
-![w:900](../../results/graphs/lab1/figure_B_02.png)
+![](../../results/graphs/lab1/figure_B_02.png){ width=90% }
 **Figure B.2** - A 10.5 Hz tone (maximally off-bin at $\Delta f = 1$ Hz) leaks energy across all DFT bins.
 
 - The off-bin tone spreads energy across the entire spectrum, while the on-bin tone concentrates perfectly in a single bin.
@@ -228,7 +216,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 1 Result: Zero-Padding Failure Demonstrated
 
-![w:900](../../results/graphs/lab1/figure_B_08.png)
+![](../../results/graphs/lab1/figure_B_08.png){ width=90% }
 **Figure B.8** - Zero-padding applied to 10 + 10.5 Hz: the spectrum appears resolved but the apparent peaks are interpolation artifacts.
 
 - The smoother curve produced by zero-padding can create a visual illusion of two distinct peaks where only spectral leakage exists.
@@ -248,7 +236,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 2 Result: The Exponential Distribution Confirmed
 
-![w:900](../../results/graphs/lab2/figure_B_01.png)
+![](../../results/graphs/lab2/figure_B_01.png){ width=90% }
 **Figure B.1** - Histogram of bin powers for 10,000 white Gaussian noise realizations: exponential distribution confirmed (CV = 1.0).
 
 - The coefficient of variation equals 1.0 exactly, confirming the exponential distribution predicted by theory.
@@ -260,7 +248,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 2 Result: Welch Averaging Reduces Variance
 
-![w:900](../../results/graphs/lab2/figure_B_04.png)
+![](../../results/graphs/lab2/figure_B_04.png){ width=90% }
 **Figure B.4** - Welch periodogram comparison: increasing $K$ segments reduces spectral variance at the cost of frequency resolution.
 
 - With $K = 1$ segment, the spectrum is noisy and unreliable (CV = 1.0).
@@ -281,7 +269,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 3 Result: Kernel Anatomy and Cancellation Mechanism
 
-![w:900](../../results/graphs/lab3/figure_B_11.png)
+![](../../results/graphs/lab3/figure_B_11.png){ width=90% }
 **Figure B.11** - The Dirichlet kernel anatomy: main lobe, side lobes, null spacing ($2\pi/M$), and $-20$ dB/octave decay rate.
 
 - The rectangular window's side lobes decay at only $-20$ dB/octave due to the discontinuous signal edges.
@@ -293,7 +281,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 3 Result: Window Comparison
 
-![w:900](../../results/graphs/lab3/figure_B_14.png)
+![](../../results/graphs/lab3/figure_B_14.png){ width=90% }
 **Figure B.14** - Four windows applied to the same signal: the resolution-leakage tradeoff visualized.
 
 - First side-lobe levels: $-13$ dB (Rectangular), $-32$ dB (Hann), $-43$ dB (Hamming), $-58$ dB (Blackman).
@@ -314,7 +302,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 4 Result: The Heisenberg Tradeoff Made Visible
 
-![w:900](../../results/graphs/lab4/figure_B_18.png)
+![](../../results/graphs/lab4/figure_B_18.png){ width=90% }
 **Figure B.18** - Same chirp, two window lengths: short ($M = 250$, 1.0 s) versus long ($M = 1250$, 5.0 s).
 
 - The short window tracks the chirp in time with $\Delta t = 1.0$ s but frequency is blurred ($\Delta f = 2.0$ Hz).
@@ -335,7 +323,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 5 Result: Resolved versus Merged
 
-![w:900](../../results/graphs/lab5/figure_B_28.png)
+![](../../results/graphs/lab5/figure_B_28.png){ width=90% }
 **Figure B.28** - Two stationary tones on the spectrogram: resolved (top, $\Delta f > 2f_s/M$) versus merged (bottom, $\Delta f < 2f_s/M$).
 
 - For $M = 1250$ at $f_s = 250$ Hz: $\Delta f_{\min} = 2 \times 250 / 1250 = 0.4$ Hz.
@@ -355,7 +343,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 6 Result: Phase-Blindness Demonstrated
 
-![w:900](../../results/graphs/lab6/figure_B_33.png)
+![](../../results/graphs/lab6/figure_B_33.png){ width=90% }
 **Figure B.33** - Two signals with different phase offsets produce identical autocorrelation functions.
 
 - The autocorrelation $R_x[m] = \sum_n x[n] \cdot x[n+m]$ depends only on periodicity, not on the absolute phase of the components.
@@ -366,7 +354,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 6 Result: Cross-Correlation Detects Shared Content
 
-![w:900](../../results/graphs/lab6/figure_B_37.png)
+![](../../results/graphs/lab6/figure_B_37.png){ width=90% }
 **Figure B.37** - Cross-correlation between two signals: $\rho = 0.107$ for shared tone, $\rho \approx 0$ for independent signals.
 
 - The cross-correlation $R_{xy}[m]$ quantifies the similarity between two signals as a function of lag.
@@ -387,7 +375,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 7 Result: Razor-Sharp Chirp versus Heisenberg-Blurred STFT
 
-![w:900](../../results/graphs/lab7/figure_B_40.png)
+![](../../results/graphs/lab7/figure_B_40.png){ width=90% }
 **Figure B.40** - STFT (left) versus WVD (right) on a single linear chirp: the WVD traces the instantaneous frequency exactly.
 
 - The STFT produces a thick, blurred diagonal whose width reflects the Heisenberg tradeoff.
@@ -399,7 +387,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 7 Result: Cross-Terms Are as Energetic as the Signal
 
-![w:900](../../results/graphs/lab7/figure_B_42.png)
+![](../../results/graphs/lab7/figure_B_42.png){ width=90% }
 **Figure B.42** - Chirp + constant tone: the WVD generates an oscillating interference pattern at the midpoint between the two components.
 
 - For two components, the bilinearity generates a cross-term located at the midpoint in both time and frequency.
@@ -420,7 +408,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 8 Result: WVD to PWVD to SPWVD Progression
 
-![w:900](../../results/graphs/lab8/figure_B_46.png)
+![](../../results/graphs/lab8/figure_B_46.png){ width=90% }
 **Figure B.46** - Step-by-step ghost suppression: WVD (top), PWVD (middle), SPWVD (bottom).
 
 - The WVD shows razor-sharp auto-terms but cross-terms fill the space between the two chirps.
@@ -432,7 +420,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 8 Result: Two-Knob Sweep
 
-![w:900](../../results/graphs/lab8/figure_B_47.png)
+![](../../results/graphs/lab8/figure_B_47.png){ width=90% }
 **Figure B.47** - SPWVD with different window configurations: strong frequency smoothing (left) versus strong time smoothing (right).
 
 - Case 1 ($h = 101$, $g = 5$): strong frequency smoothing preserves time resolution but leaves time-oscillating ghosts visible.
@@ -444,7 +432,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## Lab 8 Result: The Duality of Ghost Types
 
-![w:900](../../results/graphs/lab8/figure_B_49.png)
+![](../../results/graphs/lab8/figure_B_49.png){ width=90% }
 **Figure B.49** - Two time-separated impulses: frequency-oscillating ghosts suppressed by the PWVD lag window.
 
 - Components separated in time produce cross-terms that oscillate in the frequency direction; the lag window $h$ suppresses these.
@@ -463,8 +451,6 @@ Each row addresses a specific limitation of the row above it.
 - Every prediction from Volume A is confirmed quantitatively in Volume B, establishing confidence for Volume C.
 
 ---
-
-<!-- Part 3 -->
 
 ## What Signal Are We Working With?
 
@@ -498,7 +484,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.1 Result: Band Power Distribution
 
-![w:900](../../results/graphs/volume_c/c1/figure_C_06.png)
+![](../../results/graphs/volume_c/c1/figure_C_06.png){ width=90% }
 
 - Delta (0.5-4 Hz): **91.8%** of total power dominates the recording entirely.
 - Theta (4-8 Hz): 5.7%. Alpha (8-13 Hz): 1.0%. Beta (13-30 Hz): 1.0%.
@@ -529,7 +515,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.2 Result: Log-Log PSD Reveals Oscillatory Delta
 
-![w:900](../../results/graphs/volume_c/c2/figure_C_09.png)
+![](../../results/graphs/volume_c/c2/figure_C_09.png){ width=90% }
 
 - The PSD follows $1/f^{3.18}$ across the 5-40 Hz range, steeper than pink noise ($1/f^1$).
 - Delta peaks at 0.4-0.6 Hz sit **below** the 1/f extrapolation line, confirming genuine oscillatory activity beyond the spectral slope.
@@ -549,7 +535,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.3 Result: Full-Recording Spectrogram
 
-![w:900](../../results/graphs/volume_c/c3/figure_C_12.png)
+![](../../results/graphs/volume_c/c3/figure_C_12.png){ width=90% }
 
 - Delta power is **not continuous**. It arrives in discrete bursts visible as bright vertical stripes on the spectrogram.
 - The bursts span multiple frequency bands simultaneously, indicating broadband events rather than narrowband oscillations.
@@ -560,7 +546,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.3 Result: Burst Quantification
 
-![w:900](../../results/graphs/volume_c/c3/figure_C_16.png)
+![](../../results/graphs/volume_c/c3/figure_C_16.png){ width=90% }
 
 - Burst threshold: $2 \times$ median delta power = 3479 $\mu$V$^2$.
 - **19%** of the recording is classified as burst; **81%** is classified as quiet (inter-burst).
@@ -580,7 +566,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.4 Result: Channel Cleanliness Verified
 
-![w:900](../../results/graphs/volume_c/c4/figure_C_20.png)
+![](../../results/graphs/volume_c/c4/figure_C_20.png){ width=90% }
 
 - All auxiliary channels show $\rho < 0.03$ versus CZ, confirming negligible linear coupling with ECG, EMG, and EOG.
 - Alpha-band noise floor: measured CV = 1.11 (theoretical exponential: CV = 1.00), indicating a close but imperfect fit.
@@ -600,7 +586,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## How Do We Select a Clean Segment?
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_22.png)
+![](../../results/graphs/volume_c/c5/figure_C_22.png){ width=90% }
 
 - The strongest burst (8.7x median, $t = 842.5$ s) was **rejected**: 44 consecutive flat samples reveal amplifier saturation, a hardware artifact that introduces artificial harmonics.
 - The 75th percentile burst ($t = 65.0$ s, 3.0x median) was **accepted**: energetic enough to be representative, with no clipping or flat samples.
@@ -611,7 +597,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.5 Result: Raw WVD Confirms Cross-Term Theory
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_25.png)
+![](../../results/graphs/volume_c/c5/figure_C_25.png){ width=90% }
 
 - **49% of all WVD values are negative.** The WVD is not a valid power distribution for this multi-component signal.
 - Oscillating cross-terms fill the entire time-frequency plane, completely obscuring the auto-terms.
@@ -622,7 +608,7 @@ Each row addresses a specific limitation of the row above it.
 
 ## C.5 Result: SPWVD Three-Way Comparison
 
-![w:900](../../results/graphs/volume_c/c5/figure_C_27.png)
+![](../../results/graphs/volume_c/c5/figure_C_27.png){ width=90% }
 
 - **STFT** (top): readable but blurred; the burst occupies a wide time-frequency region due to Heisenberg spreading.
 - **WVD** (middle): theoretically sharp but practically unusable due to cross-term contamination (49% negative values).
@@ -662,8 +648,6 @@ Each row addresses a specific limitation of the row above it.
 - Future work: extend the theoretical foundation to include filter design, completing the signal processing chain.
 
 ---
-
-<!-- Part 4 -->
 
 ## What Worked
 
